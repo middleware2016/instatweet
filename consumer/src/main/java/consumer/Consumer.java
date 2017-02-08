@@ -1,31 +1,31 @@
-package example.consumer;
+package consumer;
 
 import javax.annotation.Resource;
-import javax.jms.*;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
+import javax.jms.Topic;
 
 /**
  * Created by alex on 16/01/2017.
  */
 public class Consumer {
-    @Resource(lookup = "jms/ConnectionFactory")
+    @Resource(mappedName = "jms/DurableConnectionFactory")
     private static ConnectionFactory connectionFactory;
-    @Resource(lookup = "jms/Queue")private static Queue queue;
-    @Resource(lookup = "jms/Topic")private static Topic topic;
+    @Resource(mappedName = "jms/MyQueue")
+    private static Queue queue;
 
     public static void main (String [] args) throws JMSException {
 
         final int NUM_MSGS = 1;
 
-        //Must be "queue" or "topic"
-        String destType = "queue";
-
-        Destination dest = null;
-
-        if (destType.equals("queue")) {
-            dest = (Destination) queue;
-        } else {
-            dest = (Destination) topic;
-        }
+        Destination dest = (Destination) queue;
 
 
         Connection connection = connectionFactory.createConnection();

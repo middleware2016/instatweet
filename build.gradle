@@ -1,18 +1,80 @@
 group 'mw.instatweet'
 version '1.0-SNAPSHOT'
 
-apply plugin: 'java'
-apply plugin: 'war'
-
-repositories {
-    mavenCentral()
-}
-
-dependencies {
-    testCompile group: 'junit', name: 'junit', version: '4.11'
-
-    providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
+subprojects{
 
 }
-group 'mw.instatweet'
-version '1.0-SNAPSHOT'
+
+project(':producer') {
+    apply plugin: 'application'
+
+    mainClassName = 'Producer'
+
+    apply plugin: 'java'
+    apply plugin: 'war'
+
+
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: '4.11'
+
+        providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
+
+        runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
+
+    }
+
+    jar {
+        archiveName = "producer.jar"
+
+        manifest {
+            attributes(
+                    "Implementation-Timestamp": new Date(),
+                    "Class-Path": configurations.compile.collect { it.getName() }.join(' '),
+                    'Main-Class' : 'producer.Producer')
+        }
+    }
+}
+
+project(':consumer') {
+    apply plugin: 'application'
+    mainClassName = 'Consumer'
+
+
+    apply plugin: 'java'
+    apply plugin: 'war'
+
+
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: '4.11'
+
+        providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
+
+        runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
+
+    }
+
+    jar {
+        archiveName = "consumer.jar"
+
+        manifest {
+            attributes(
+                    "Implementation-Timestamp": new Date(),
+                    "Class-Path": configurations.compile.collect { it.getName() }.join(' '),
+                    'Main-Class' : 'consumer.Consumer')
+        }
+    }
+}
+
+
+
+

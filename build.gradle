@@ -40,7 +40,7 @@ project(':producer') {
     }
 }
 
-project(':consumer') {
+project(':server') {
     apply plugin: 'application'
     mainClassName = 'Consumer'
 
@@ -64,13 +64,13 @@ project(':consumer') {
     }
 
     jar {
-        archiveName = "consumer.jar"
+        archiveName = "server.jar"
 
         manifest {
             attributes(
                     "Implementation-Timestamp": new Date(),
                     "Class-Path": configurations.compile.collect { it.getName() }.join(' '),
-                    'Main-Class' : 'consumer.Consumer')
+                    'Main-Class' : 'server.Core')
         }
     }
 }

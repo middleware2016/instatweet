@@ -7,6 +7,8 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.List;
 
+import static java.lang.System.exit;
+
 /**
  * Database that manages users, subscriptions and images
  *
@@ -29,27 +31,28 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface{
     }
 
     public static void main(String args[]){
-        if(args.length<2) {
+        if(args.length<1) {
             System.out.println("Database arguments: database-rmi-name [rmi-registry-ip  rmi-registry-port]");
             return;
         }
 
         try {
             Registry registry;
-            if(args.length < 4) {
+            if(args.length < 3) {
                 System.out.println("Using default rmi ip and port");
                 registry = LocateRegistry.getRegistry();
             } else
-                registry = LocateRegistry.getRegistry(args[2], Integer.parseInt(args[3]));
+                registry = LocateRegistry.getRegistry(args[1], Integer.parseInt(args[2]));
 
             Database db = new Database();
 
-            registry.bind(args[1], db);
+            registry.bind(args[0], db);
 
 
         } catch (RemoteException | AlreadyBoundException e){
             e.printStackTrace();
             System.out.println("Exiting the database");
+            exit(-1);
         }
 
     }

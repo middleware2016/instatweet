@@ -1,6 +1,37 @@
 group 'mw.instatweet'
 version '1.0-SNAPSHOT'
 
+////////////////////////////////////////////////////////////////
+//Utility
+project(':utility') {
+    apply plugin: 'application'
+
+    mainClassName = 'MyMessage'
+
+    apply plugin: 'java'
+    apply plugin: 'war'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: '4.11'
+        providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
+        runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
+    }
+
+    jar {
+        archiveName = "utility.jar"
+
+        manifest {
+            attributes(
+                    "Implementation-Timestamp": new Date(),
+                    "Class-Path": configurations.compile.collect { it.getName() }.join(' '))
+        }
+    }
+}
+
 
 ////////////////////////////////////////////////////////////////
 //Input server
@@ -20,6 +51,7 @@ project(':inputserver') {
         testCompile group: 'junit', name: 'junit', version: '4.11'
         providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
         runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
+        compile project(':utility')
     }
 
     jar {
@@ -52,6 +84,7 @@ project(':imagehandler') {
         testCompile group: 'junit', name: 'junit', version: '4.11'
         providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
         runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
+        compile project(':utility')
     }
 
     jar {
@@ -85,6 +118,7 @@ project(':dispatcher') {
         testCompile group: 'junit', name: 'junit', version: '4.11'
         providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
         runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
+        compile project(':utility')
     }
 
     jar {
@@ -117,6 +151,7 @@ project(':database') {
         testCompile group: 'junit', name: 'junit', version: '4.11'
         providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
         runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
+        compile project(':utility')
     }
 
     jar {
@@ -149,6 +184,7 @@ project(':timeline') {
         testCompile group: 'junit', name: 'junit', version: '4.11'
         providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
         runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
+        compile project(':utility')
     }
 
     jar {
@@ -181,6 +217,7 @@ project(':loadmanager') {
         testCompile group: 'junit', name: 'junit', version: '4.11'
         providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
         runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
+        compile project(':utility')
     }
 
     jar {

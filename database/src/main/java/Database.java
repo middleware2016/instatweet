@@ -4,23 +4,25 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 import java.util.List;
-import java.util.Map;
 
 /**
- * Database that manages subscriptions and images
+ * Database that manages users, subscriptions and images
  *
  * @author Alex Delbono
  */
 public class Database extends UnicastRemoteObject implements DatabaseInterface{
 
+    private Map<Integer, String> users;
+    private int nextUserID;
     private Map<Integer, List<Integer>> subscriptions;
     private Map<Integer, Image> images;
     private int nextImageID;
 
     private Database() throws RemoteException {
+        users = new HashMap<>();
+        nextUserID = 0;
         subscriptions = new HashMap<>();
         images = new HashMap<>();
         nextImageID = 0;
@@ -50,6 +52,30 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface{
             System.out.println("Exiting the database");
         }
 
+    }
+
+    @Override
+    public int addUser(String name) throws RemoteException, IllegalArgumentException {
+        synchronized (users){
+            if(users.containsValue(name))
+                throw new IllegalArgumentException("The username is already in the database");
+            users.put(nextUserID, name);
+            return nextUserID++;
+        }
+    }
+
+    @Override
+    public void removeUser(int userID) throws RemoteException {
+        synchronized (users){
+            users.remove(userID);
+        }
+    }
+
+    @Override
+    public String getName(int userID) throws RemoteException {
+        synchronized (users){
+            return users.get(userID);
+        }
     }
 
     @Override

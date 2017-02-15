@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.awt.*;
 import java.rmi.AlreadyBoundException;
 import java.rmi.RemoteException;
@@ -19,7 +20,7 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface{
     private Map<Integer, String> users;
     private int nextUserID;
     private Map<Integer, List<Integer>> subscriptions;
-    private Map<Integer, Image> images;
+    private Map<Integer, ImageIcon> images;
     private int nextImageID;
 
     private Database() throws RemoteException {
@@ -131,7 +132,7 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface{
     }
 
     @Override
-    public int addImage(Image img) throws RemoteException {
+    public int addImage(ImageIcon img) throws RemoteException {
         synchronized (images) {
             images.put(nextImageID, img);
             return nextImageID++;
@@ -139,7 +140,7 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface{
     }
 
     @Override
-    public Image getImage(int imageID) throws RemoteException {
+    public ImageIcon getImage(int imageID) throws RemoteException {
         synchronized (images){
             return images.get(imageID);
         }

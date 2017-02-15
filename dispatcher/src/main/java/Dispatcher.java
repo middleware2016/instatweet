@@ -88,5 +88,6 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInterfa
             System.out.println("Exiting the dispatcher " + args[2]);
             exit(-1);
         }
+
     }
 }

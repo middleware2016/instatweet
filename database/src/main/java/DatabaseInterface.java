@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.awt.*;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
@@ -18,8 +19,8 @@ public interface DatabaseInterface extends Remote{
     public void addSubscriber(int userID, int subscriberID) throws RemoteException;
     public void removeSubscriber(int userID, int subscriberID) throws RemoteException;
 
-    public int addImage(Image img) throws RemoteException;
-    public Image getImage(int imageID) throws RemoteException;
+    public int addImage(ImageIcon img) throws RemoteException;
+    public ImageIcon getImage(int imageID) throws RemoteException;
     public void removeImage(int imageID) throws RemoteException;
 
 }

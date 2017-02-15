@@ -6,7 +6,7 @@ version '1.0-SNAPSHOT'
 project(':utility') {
     apply plugin: 'application'
 
-    mainClassName = 'MyMessage'
+    mainClassName = ''
 
     apply plugin: 'java'
     apply plugin: 'war'
@@ -32,6 +32,39 @@ project(':utility') {
     }
 }
 
+////////////////////////////////////////////////////////////////
+//Database for images, users and subscriptions
+project(':database') {
+    apply plugin: 'application'
+
+    mainClassName = 'Database'
+
+    apply plugin: 'java'
+    apply plugin: 'war'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: '4.11'
+        providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
+        runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
+        compile project(':utility')
+    }
+
+    jar {
+        archiveName = "database.jar"
+
+        manifest {
+            attributes(
+                    "Implementation-Timestamp": new Date(),
+                    "Class-Path": configurations.compile.collect { it.getName() }.join(' '),
+                    'Main-Class' : 'Database')
+        }
+    }
+}
+
 
 ////////////////////////////////////////////////////////////////
 //Input server
@@ -52,6 +85,8 @@ project(':inputserver') {
         providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
         runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
         compile project(':utility')
+        compile project(':database')
+
     }
 
     jar {
@@ -85,6 +120,7 @@ project(':imagehandler') {
         providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
         runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
         compile project(':utility')
+        compile project(':database')
     }
 
     jar {
@@ -133,38 +169,7 @@ project(':dispatcher') {
     }
 }
 
-////////////////////////////////////////////////////////////////
-//Database for images, users and subscriptions
-project(':database') {
-    apply plugin: 'application'
 
-    mainClassName = 'Database'
-
-    apply plugin: 'java'
-    apply plugin: 'war'
-
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-        testCompile group: 'junit', name: 'junit', version: '4.11'
-        providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
-        runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
-        compile project(':utility')
-    }
-
-    jar {
-        archiveName = "database.jar"
-
-        manifest {
-            attributes(
-                    "Implementation-Timestamp": new Date(),
-                    "Class-Path": configurations.compile.collect { it.getName() }.join(' '),
-                    'Main-Class' : 'Database')
-        }
-    }
-}
 
 ////////////////////////////////////////////////////////////////
 //Timeline

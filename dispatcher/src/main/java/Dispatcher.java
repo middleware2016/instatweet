@@ -32,6 +32,7 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInterfa
         stop = false;
     }
 
+    @Override
     public synchronized void stop() throws RemoteException{
         stop = true;
     }
@@ -80,7 +81,7 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInterfa
             }
 
             registry.unbind(args[2]);
-            System.out.println("Dispatcher " + args[2] + " unbounded");
+            System.out.println("Dispatcher " + args[2] + " unbound");
 
 
         } catch (RemoteException | AlreadyBoundException | NotBoundException | NamingException e){

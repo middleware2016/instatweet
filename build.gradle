@@ -1,19 +1,16 @@
 group 'mw.instatweet'
 version '1.0-SNAPSHOT'
 
-subprojects{
 
-}
-
-project(':producer') {
+////////////////////////////////////////////////////////////////
+//Input server
+project(':inputserver') {
     apply plugin: 'application'
 
-    mainClassName = 'Producer'
+    mainClassName = 'InputServer'
 
     apply plugin: 'java'
     apply plugin: 'war'
-
-
 
     repositories {
         mavenCentral()
@@ -21,34 +18,31 @@ project(':producer') {
 
     dependencies {
         testCompile group: 'junit', name: 'junit', version: '4.11'
-
         providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
-
         runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
-
     }
 
     jar {
-        archiveName = "producer.jar"
+        archiveName = "inputserver.jar"
 
         manifest {
             attributes(
                     "Implementation-Timestamp": new Date(),
                     "Class-Path": configurations.compile.collect { it.getName() }.join(' '),
-                    'Main-Class' : 'producer.Producer')
+                    'Main-Class' : 'InputServer')
         }
     }
 }
 
-project(':server') {
+////////////////////////////////////////////////////////////////
+//Image handler server
+project(':imagehandler') {
     apply plugin: 'application'
-    mainClassName = 'Consumer'
 
+    mainClassName = 'ImageHandler'
 
     apply plugin: 'java'
     apply plugin: 'war'
-
-
 
     repositories {
         mavenCentral()
@@ -56,24 +50,152 @@ project(':server') {
 
     dependencies {
         testCompile group: 'junit', name: 'junit', version: '4.11'
-
         providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
-
         runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
-
     }
 
     jar {
-        archiveName = "server.jar"
+        archiveName = "imagehandler.jar"
 
         manifest {
             attributes(
                     "Implementation-Timestamp": new Date(),
                     "Class-Path": configurations.compile.collect { it.getName() }.join(' '),
-                    'Main-Class' : 'server.Core')
+                    'Main-Class' : 'ImageHandler')
         }
     }
 }
+
+
+////////////////////////////////////////////////////////////////
+//Dispatcher server
+project(':dispatcher') {
+    apply plugin: 'application'
+
+    mainClassName = 'Dispatcher'
+
+    apply plugin: 'java'
+    apply plugin: 'war'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: '4.11'
+        providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
+        runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
+    }
+
+    jar {
+        archiveName = "dispatcher.jar"
+
+        manifest {
+            attributes(
+                    "Implementation-Timestamp": new Date(),
+                    "Class-Path": configurations.compile.collect { it.getName() }.join(' '),
+                    'Main-Class' : 'Dispatcher')
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////
+//Database for images, users and subscriptions
+project(':database') {
+    apply plugin: 'application'
+
+    mainClassName = 'Database'
+
+    apply plugin: 'java'
+    apply plugin: 'war'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: '4.11'
+        providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
+        runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
+    }
+
+    jar {
+        archiveName = "database.jar"
+
+        manifest {
+            attributes(
+                    "Implementation-Timestamp": new Date(),
+                    "Class-Path": configurations.compile.collect { it.getName() }.join(' '),
+                    'Main-Class' : 'Database')
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////
+//Timeline
+project(':timeline') {
+    apply plugin: 'application'
+
+    mainClassName = 'Timeline'
+
+    apply plugin: 'java'
+    apply plugin: 'war'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: '4.11'
+        providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
+        runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
+    }
+
+    jar {
+        archiveName = "timeline.jar"
+
+        manifest {
+            attributes(
+                    "Implementation-Timestamp": new Date(),
+                    "Class-Path": configurations.compile.collect { it.getName() }.join(' '),
+                    'Main-Class' : 'Timeline')
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////
+//Load manager
+project(':loadmanager') {
+    apply plugin: 'application'
+
+    mainClassName = 'LoadManager'
+
+    apply plugin: 'java'
+    apply plugin: 'war'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: '4.11'
+        providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
+        runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
+    }
+
+    jar {
+        archiveName = "loadmanager.jar"
+
+        manifest {
+            attributes(
+                    "Implementation-Timestamp": new Date(),
+                    "Class-Path": configurations.compile.collect { it.getName() }.join(' '),
+                    'Main-Class' : 'LoadManager')
+        }
+    }
+}
+
+
 
 
 

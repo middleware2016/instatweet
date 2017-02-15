@@ -1,3 +1,3 @@
 rootProject.name = 'instatweet'
-include 'producer','server'
+include 'inputserver','imagehandler', 'dispatcher', 'database', 'timeline', 'loadmanager'
 

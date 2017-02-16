@@ -19,26 +19,26 @@ public class Timeline extends UnicastRemoteObject implements TimelineInterface{
 
     private Registry registry;
     private String username;
-    private String rmi_name;
     private DatabaseInterface db;
 
     private List<Tweet> timeline;
 
-    public Timeline(Registry registry, String username, DatabaseInterface db, String rmi_name) throws RemoteException {
+    public Timeline(Registry registry, String username, DatabaseInterface db) throws RemoteException {
         this.registry=registry;
         this.username=username;
-        this.rmi_name=rmi_name;
         this.db=db;
+
+        timeline = new ArrayList<>();
 
     }
 
     public synchronized void runTimeline() throws AlreadyBoundException, RemoteException, NotBoundException, InterruptedException {
 
-        registry.bind(rmi_name, this);
+        registry.bind("user_"+username, this);
 
         wait();
 
-        registry.unbind(rmi_name);
+        registry.unbind("user_"+username);
     }
 
     @Override
@@ -78,23 +78,23 @@ public class Timeline extends UnicastRemoteObject implements TimelineInterface{
     }
 
     public static void main(String args[]){
-        if(args.length<3) {
-            System.out.println("Timeline arguments: username database-rmi-name timeline-rmi-name" +
+        if(args.length<2) {
+            System.out.println("Timeline arguments: username database-rmi-name " +
                     "[rmi-registry-ip  rmi-registry-port]");
             return;
         }
 
         try {
             Registry registry;
-            if(args.length < 5) {
+            if(args.length < 4) {
                 System.out.println("Using default rmi ip and port");
                 registry = LocateRegistry.getRegistry();
             } else
-                registry = LocateRegistry.getRegistry(args[3], Integer.parseInt(args[4]));
+                registry = LocateRegistry.getRegistry(args[2], Integer.parseInt(args[3]));
 
             DatabaseInterface db = (DatabaseInterface) registry.lookup(args[1]);
 
-            Timeline timeline = new Timeline(registry, args[0], db, args[2]);
+            Timeline timeline = new Timeline(registry, args[0], db);
 
             timeline.runTimeline();
 

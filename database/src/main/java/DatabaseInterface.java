@@ -15,6 +15,10 @@ public interface DatabaseInterface extends Remote{
     public void removeUser(int userID) throws RemoteException;
     public String getName(int userID) throws RemoteException;
 
+    public void addTimeline(int userID, Object timeline) throws RemoteException;
+    public void removeTimeline(int userID) throws RemoteException;
+    public Object getTimeline(int userID) throws RemoteException;
+
     public List<Integer> getSubscribers(int userID) throws RemoteException;
     public void addSubscriber(int userID, int subscriberID) throws RemoteException;
     public void removeSubscriber(int userID, int subscriberID) throws RemoteException;
@@ -23,4 +27,5 @@ public interface DatabaseInterface extends Remote{
     public ImageIcon getImage(int imageID) throws RemoteException;
     public void removeImage(int imageID) throws RemoteException;
 
+    public void stopDatabase() throws RemoteException;
 }

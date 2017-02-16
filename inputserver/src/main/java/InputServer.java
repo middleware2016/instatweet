@@ -26,11 +26,12 @@ public class InputServer extends UnicastRemoteObject implements InputServerInter
     private JMSProducer imagehandle;
     private Destination imagehandleDest;
     private DatabaseInterface db;
+    private String timeline_jar_path;
 
     protected InputServer(Registry reg, JMSConsumer stream,
                           JMSProducer dispatch, Destination dispatchDest,
                           JMSProducer imagehandle, Destination imagehandleDest,
-                          DatabaseInterface db) throws RemoteException {
+                          DatabaseInterface db, String timeline_jar_path) throws RemoteException {
         this.reg=reg;
         this.stream=stream;
         this.dispatch=dispatch;
@@ -38,6 +39,7 @@ public class InputServer extends UnicastRemoteObject implements InputServerInter
         this.imagehandle=imagehandle;
         this.imagehandleDest=imagehandleDest;
         this.db=db;
+        this.timeline_jar_path=timeline_jar_path;
         stop=false;
     }
 
@@ -63,20 +65,21 @@ public class InputServer extends UnicastRemoteObject implements InputServerInter
 
 
     public static void main(String args[]){
-        if(args.length<6) {
+        if(args.length<7) {
             System.out.println("InputServer arguments: connection-factory-name input-queue-name " +
-                    "dispatch-destination-name imagehandle-destination-name database-rmi-name inputserver-rmi-name " +
+                    "dispatch-destination-name imagehandle-destination-name timeline-jar-path" +
+                    "database-rmi-name inputserver-rmi-name " +
                     "[rmi-registry-ip  rmi-registry-port]");
             return;
         }
 
         try {
             Registry registry;
-            if(args.length < 8) {
+            if(args.length < 9) {
                 System.out.println("Using default rmi ip and port");
                 registry = LocateRegistry.getRegistry();
             } else
-                registry = LocateRegistry.getRegistry(args[6], Integer.parseInt(args[7]));
+                registry = LocateRegistry.getRegistry(args[7], Integer.parseInt(args[8]));
 
             Context jndiContext = new InitialContext();
             ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext.lookup(args[0]);
@@ -88,23 +91,24 @@ public class InputServer extends UnicastRemoteObject implements InputServerInter
             JMSProducer dispatch = context.createProducer();
             JMSProducer imagehandle = context.createProducer();
 
-            DatabaseInterface db = (DatabaseInterface) registry.lookup(args[4]);
+            DatabaseInterface db = (DatabaseInterface) registry.lookup(args[5]);
 
-            InputServer imgHandler = new InputServer(registry, consumer, dispatch, dispatchDest, imagehandle, imagehandleDest, db);
+            InputServer imgHandler = new InputServer(registry, consumer, dispatch, dispatchDest,
+                                                    imagehandle, imagehandleDest, db, args[4]);
 
-            registry.bind(args[5], imgHandler);
+            registry.bind(args[6], imgHandler);
 
             while(!imgHandler.isStopped()){
                 imgHandler.processNext();
             }
 
-            registry.unbind(args[5]);
-            System.out.println("InputServer " + args[5] + " unbound");
+            registry.unbind(args[6]);
+            System.out.println("InputServer " + args[6] + " unbound");
 
 
         } catch (RemoteException | AlreadyBoundException | NotBoundException | NamingException e){
             e.printStackTrace();
-            System.out.println("Exiting the inputserver " + args[5]);
+            System.out.println("Exiting the inputserver " + args[6]);
             exit(-1);
         }
 

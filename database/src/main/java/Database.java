@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.rmi.AlreadyBoundException;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -17,18 +18,37 @@ import static java.lang.System.exit;
  */
 public class Database extends UnicastRemoteObject implements DatabaseInterface{
 
+    private Registry registry;
+    private String rmi_name;
     private Map<Integer, String> users;
     private int nextUserID;
+    private Map<Integer, Object> timelines;
     private Map<Integer, List<Integer>> subscriptions;
     private Map<Integer, ImageIcon> images;
     private int nextImageID;
 
-    private Database() throws RemoteException {
+    private Database(Registry registry, String rmi_name) throws RemoteException {
+        this.registry=registry;
+        this.rmi_name=rmi_name;
         users = new HashMap<>();
         nextUserID = 0;
+        timelines = new HashMap<>();
         subscriptions = new HashMap<>();
         images = new HashMap<>();
         nextImageID = 0;
+    }
+
+    public synchronized void runDatabase() throws AlreadyBoundException, RemoteException, NotBoundException, InterruptedException {
+        registry.bind(rmi_name, this);
+
+        wait();
+
+        registry.unbind(rmi_name);
+    }
+
+    @Override
+    public synchronized void stopDatabase(){
+        notify();
     }
 
     public static void main(String args[]){
@@ -45,12 +65,12 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface{
             } else
                 registry = LocateRegistry.getRegistry(args[1], Integer.parseInt(args[2]));
 
-            Database db = new Database();
+            Database db = new Database(registry, args[0]);
 
-            registry.bind(args[0], db);
+            db.runDatabase();
 
 
-        } catch (RemoteException | AlreadyBoundException e){
+        } catch (RemoteException | AlreadyBoundException | NotBoundException | InterruptedException e){
             e.printStackTrace();
             System.out.println("Exiting the database");
             exit(-1);
@@ -80,6 +100,21 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface{
         synchronized (users){
             return users.get(userID);
         }
+    }
+
+    @Override
+    public void addTimeline(int userID, Object timeline) throws RemoteException {
+        timelines.put(userID,timeline);
+    }
+
+    @Override
+    public void removeTimeline(int userID) throws RemoteException {
+        timelines.remove(userID);
+    }
+
+    @Override
+    public Object getTimeline(int userID) throws RemoteException {
+        return timelines.get(userID);
     }
 
     @Override

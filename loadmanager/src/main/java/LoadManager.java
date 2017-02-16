@@ -127,10 +127,10 @@ public class LoadManager {
 
             System.out.println("Everything initialized");
 
-            //Loop until administrator want to quit
+            //Loop until administrator wants to quit
             loadManagerLoop();
 
-            LoadManager.closeAll();
+            closeAll();
 
             System.out.println("Everything closed");
 
@@ -147,7 +147,6 @@ public class LoadManager {
     }
 
     private static void loadManagerLoop() throws JMSException, IOException {
-
 
         Thread t = new Thread() {
 

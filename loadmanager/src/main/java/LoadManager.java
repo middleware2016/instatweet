@@ -243,23 +243,10 @@ public class LoadManager {
 
         String name = input_server_rmi_name + "_" + input_server_counter;
 
-        Process p = Runtime.getRuntime().exec("appclient -client " + input_server_jar_path + " "
+        Runtime.getRuntime().exec("appclient -client " + input_server_jar_path + " "
                 + connection_factory_name + " " + input_queue_name + " " + dispatch_destination_name + " "
                 + imagehandle_destination_name + " " + timeline_jar_path + " " + database_rmi_name + " "
                 + name + " " + rmi_ip_port);
-
-        InputStream in = p.getInputStream();
-        InputStream err = p.getErrorStream();
-        byte[] buff = new byte[1024];
-        int bytesRead;
-        while (input_server_counter>=0)
-        {
-            if((bytesRead = in.read(buff)) != -1)
-                System.out.write(buff, 0, bytesRead);
-            if((bytesRead = err.read(buff)) != -1)
-                System.out.write(buff, 0, bytesRead);
-
-        }
 
         input_server_list.add(name);
 

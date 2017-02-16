@@ -190,6 +190,7 @@ project(':timeline') {
         providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
         runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
         compile project(':utility')
+        compile project(':database')
     }
 
     jar {

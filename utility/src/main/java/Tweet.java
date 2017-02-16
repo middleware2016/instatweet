@@ -11,6 +11,7 @@ import java.io.Serializable;
  */
 public class Tweet implements Serializable {
 
+
     private String publisherUsername;
     private int publisherID;
     private ImageIcon content;
@@ -18,6 +19,15 @@ public class Tweet implements Serializable {
     //When img is a full image this is invalid (-1)
     //When img is a thumbnail this is the id of the full image for the lookup in the database
     private int fullImgID;
+
+    public Tweet(){}
+
+    public Tweet(Tweet t){
+        publisherUsername = t.publisherUsername;
+        publisherID=t.publisherID;
+        content = new ImageIcon(t.content.getImage(), t.content.getDescription());
+
+    }
 
     public String getPublisherUsername() {
         return publisherUsername;

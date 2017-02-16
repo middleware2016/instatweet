@@ -27,5 +27,6 @@ public interface DatabaseInterface extends Remote{
     public ImageIcon getImage(int imageID) throws RemoteException;
     public void removeImage(int imageID) throws RemoteException;
 
+    public List<Object> getTimelinesAsList() throws RemoteException;
     public void stopDatabase() throws RemoteException;
 }

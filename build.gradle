@@ -24,6 +24,12 @@ project(':utility') {
     jar {
         archiveName = "utility.jar"
 
+        from {
+            (configurations.runtime).collect {
+                it.isDirectory() ? it : zipTree(it)
+            }
+        }
+
         manifest {
             attributes(
                     "Implementation-Timestamp": new Date(),
@@ -55,6 +61,12 @@ project(':database') {
 
     jar {
         archiveName = "database.jar"
+
+        from {
+            (configurations.runtime).collect {
+                it.isDirectory() ? it : zipTree(it)
+            }
+        }
 
         manifest {
             attributes(
@@ -92,6 +104,12 @@ project(':inputserver') {
     jar {
         archiveName = "inputserver.jar"
 
+        from {
+            (configurations.runtime).collect {
+                it.isDirectory() ? it : zipTree(it)
+            }
+        }
+
         manifest {
             attributes(
                     "Implementation-Timestamp": new Date(),
@@ -126,6 +144,12 @@ project(':imagehandler') {
     jar {
         archiveName = "imagehandler.jar"
 
+        from {
+            (configurations.runtime).collect {
+                it.isDirectory() ? it : zipTree(it)
+            }
+        }
+
         manifest {
             attributes(
                     "Implementation-Timestamp": new Date(),
@@ -159,6 +183,12 @@ project(':dispatcher') {
 
     jar {
         archiveName = "dispatcher.jar"
+
+        from {
+            (configurations.runtime).collect {
+                it.isDirectory() ? it : zipTree(it)
+            }
+        }
 
         manifest {
             attributes(
@@ -196,6 +226,12 @@ project(':timeline') {
     jar {
         archiveName = "timeline.jar"
 
+        from {
+            (configurations.runtime).collect {
+                it.isDirectory() ? it : zipTree(it)
+            }
+        }
+
         manifest {
             attributes(
                     "Implementation-Timestamp": new Date(),
@@ -224,10 +260,22 @@ project(':loadmanager') {
         providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
         runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
         compile project(':utility')
+        compile project(':database')
+        compile project(':inputserver')
+        compile project(':imagehandler')
+        compile project(':dispatcher')
+        compile project(':timeline')
+
     }
 
     jar {
         archiveName = "loadmanager.jar"
+
+        from {
+            (configurations.runtime).collect {
+                it.isDirectory() ? it : zipTree(it)
+            }
+        }
 
         manifest {
             attributes(

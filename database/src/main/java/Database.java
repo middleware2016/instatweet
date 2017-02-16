@@ -27,7 +27,7 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface{
     private Map<Integer, ImageIcon> images;
     private int nextImageID;
 
-    private Database(Registry registry, String rmi_name) throws RemoteException {
+    public Database(Registry registry, String rmi_name) throws RemoteException {
         this.registry=registry;
         this.rmi_name=rmi_name;
         users = new HashMap<>();
@@ -68,6 +68,8 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface{
             Database db = new Database(registry, args[0]);
 
             db.runDatabase();
+
+            exit(0);
 
 
         } catch (RemoteException | AlreadyBoundException | NotBoundException | InterruptedException e){
@@ -186,5 +188,16 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface{
         synchronized (images){
             images.remove(imageID);
         }
+    }
+
+    @Override
+    public List<Object> getTimelinesAsList() throws RemoteException {
+        Collection<Object> coll = timelines.values();
+        List<Object> list = new ArrayList<>();
+
+        for(Object o : coll)
+            list.add(o);
+
+        return list;
     }
 }

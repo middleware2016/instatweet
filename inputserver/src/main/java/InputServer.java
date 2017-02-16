@@ -93,13 +93,13 @@ public class InputServer extends UnicastRemoteObject implements InputServerInter
 
             DatabaseInterface db = (DatabaseInterface) registry.lookup(args[5]);
 
-            InputServer imgHandler = new InputServer(registry, consumer, dispatch, dispatchDest,
+            InputServer inputServer = new InputServer(registry, consumer, dispatch, dispatchDest,
                                                     imagehandle, imagehandleDest, db, args[4]);
 
-            registry.bind(args[6], imgHandler);
+            registry.bind(args[6], inputServer);
 
-            while(!imgHandler.isStopped()){
-                imgHandler.processNext();
+            while(!inputServer.isStopped()){
+                inputServer.processNext();
             }
 
             registry.unbind(args[6]);

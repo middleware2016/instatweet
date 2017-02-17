@@ -45,7 +45,7 @@ public class ImageHandler extends UnicastRemoteObject implements ImageHandlerInt
 
     public void processNext(){
 
-        System.out.println(stream.receive());
+        stream.receive(500);
         //TODO do stuff
         //wait new message
         //take image from tweet
@@ -92,7 +92,7 @@ public class ImageHandler extends UnicastRemoteObject implements ImageHandlerInt
 
             registry.unbind(args[4]);
             System.out.println("ImageHandler " + args[4] + " unbound");
-
+            exit(0);
 
         } catch (RemoteException | AlreadyBoundException | NotBoundException | NamingException e){
             e.printStackTrace();

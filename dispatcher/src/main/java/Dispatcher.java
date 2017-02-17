@@ -43,7 +43,7 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInterfa
 
     public void processNext(){
 
-        System.out.println(stream.receive());
+        stream.receive(500);
         //TODO do stuff
         //wait new message
         //take userID from message
@@ -82,6 +82,7 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInterfa
 
             registry.unbind(args[2]);
             System.out.println("Dispatcher " + args[2] + " unbound");
+            exit(0);
 
 
         } catch (RemoteException | AlreadyBoundException | NotBoundException | NamingException e){

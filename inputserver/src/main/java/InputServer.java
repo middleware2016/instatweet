@@ -54,7 +54,7 @@ public class InputServer extends UnicastRemoteObject implements InputServerInter
 
     public void processNext(){
 
-        System.out.println(stream.receive());
+        stream.receive(500);
         //TODO do stuff
         //wait new message
         //if there is new user request process it
@@ -104,6 +104,7 @@ public class InputServer extends UnicastRemoteObject implements InputServerInter
 
             registry.unbind(args[6]);
             System.out.println("InputServer " + args[6] + " unbound");
+            exit(0);
 
 
         } catch (RemoteException | AlreadyBoundException | NotBoundException | NamingException e){

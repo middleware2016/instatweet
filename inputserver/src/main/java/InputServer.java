@@ -8,6 +8,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.logging.Logger;
 
 import static java.lang.System.exit;
 
@@ -31,6 +32,8 @@ public class InputServer extends UnicastRemoteObject implements InputServerInter
     private JMSContext context;
 
     private MessageListener listener;
+
+    private static Logger logger = Logger.getLogger(InputServer.class.getName());
 
     /**
      * @param context the JMS Context used to create consumer and producers
@@ -94,7 +97,7 @@ public class InputServer extends UnicastRemoteObject implements InputServerInter
         try {
             Registry registry;
             if(args.length < 9) {
-                System.out.println("Using default rmi ip and port");
+                logger.info("Using default rmi ip and port");
                 registry = LocateRegistry.getRegistry();
             } else
                 registry = LocateRegistry.getRegistry(args[7], Integer.parseInt(args[8]));
@@ -111,17 +114,16 @@ public class InputServer extends UnicastRemoteObject implements InputServerInter
             // Construction of the object and binding
             InputServer inputServer = new InputServer(context, registry, inputDest, dispatchDest, imagehandleDest, db, args[4]);
             registry.bind(args[6], inputServer);
-            System.out.println("InputDest: "+  args[1]);
             inputServer.start(); // main loop
 
             // Termination
             registry.unbind(args[6]);
-            System.out.println("InputServer " + args[6] + " unbound");
+            logger.info("InputServer " + args[6] + " unbound");
             exit(0);
 
         } catch (RemoteException | AlreadyBoundException | NotBoundException | NamingException e){
             e.printStackTrace();
-            System.out.println("Exiting the inputserver " + args[6]);
+            logger.info("Exiting the inputserver " + args[6]);
             exit(-1);
         }
 
@@ -138,7 +140,7 @@ public class InputServer extends UnicastRemoteObject implements InputServerInter
             ObjectMessage msg = (ObjectMessage)message;
             try {
                 Object obj = msg.getObject();
-                System.out.println("Received a message: " + obj.toString());
+                logger.info("Received a message: " + obj.toString());
             } catch(JMSException e) {
                 e.printStackTrace();
             }

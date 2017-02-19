@@ -6,12 +6,16 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
+import java.util.logging.Logger;
+
 import static java.lang.System.exit;
 
 public class Producer {
     private JMSContext context;
     private Destination inputDestination;
     private JMSProducer producer;
+
+    private static Logger logger = Logger.getLogger(Producer.class.getName());
 
     public Producer(JMSContext context, Destination inputDest) {
         this.context = context;
@@ -23,7 +27,7 @@ public class Producer {
     public void sendTextTweet(String txt) {
         Tweet t = new Tweet("pietrodn", 2, null, 0);
         this.producer.send(inputDestination, t);
-        System.out.println("Sent a tweet: " + t.toString());
+        logger.info("Sent a tweet: " + t.toString());
     }
 
     public static void main(String args[]){

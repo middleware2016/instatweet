@@ -3,7 +3,6 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -242,10 +241,11 @@ public class LoadManager {
 
         String name = input_server_rmi_name + "_" + input_server_counter;
 
-        Runtime.getRuntime().exec("appclient -client " + input_server_jar_path + " "
-                + connection_factory_name + " " + input_queue_name + " " + dispatch_destination_name + " "
-                + imagehandle_destination_name + " " + timeline_jar_path + " " + database_rmi_name + " "
-                + name + " " + rmi_ip_port);
+        ProcessBuilder pb =
+                new ProcessBuilder("appclient", "-client", input_server_jar_path,
+                connection_factory_name, input_queue_name, dispatch_destination_name,
+                imagehandle_destination_name, timeline_jar_path, database_rmi_name, name, rmi_ip_port);
+        pb.inheritIO().start();
 
         input_server_list.add(name);
 
@@ -255,9 +255,11 @@ public class LoadManager {
     private static void createDispatcher() throws IOException {
         String name = dispatcher_rmi_name + "_" + dispatcher_counter;
 
-        Runtime.getRuntime().exec("appclient -client " + dispatcher_jar_path + " "
-                + connection_factory_name + " " + dispatch_destination_name + " "
-                + name + " "+ rmi_ip_port);
+        ProcessBuilder pb =
+                new ProcessBuilder("appclient", "-client",
+                        dispatcher_jar_path, connection_factory_name, dispatch_destination_name,
+                        name, rmi_ip_port);
+        pb.inheritIO().start();
 
         dispatcher_list.add(name);
 
@@ -267,9 +269,11 @@ public class LoadManager {
     private static void createImageHandler() throws IOException {
         String name = image_handler_rmi_name + "_" + image_handler_counter;
 
-        Runtime.getRuntime().exec("appclient -client " + image_handler_jar_path + " "
-                + connection_factory_name + " " + imagehandle_destination_name + " "
-                + dispatch_destination_name + " " + database_rmi_name + " " + name + " " + rmi_ip_port);
+        ProcessBuilder pb =
+                new ProcessBuilder("appclient", "-client",
+                        image_handler_jar_path, connection_factory_name, imagehandle_destination_name,
+                        dispatch_destination_name, database_rmi_name, name, rmi_ip_port);
+        pb.inheritIO().start();
 
         image_handler_list.add(name);
 

@@ -33,7 +33,7 @@ public class ClientCLI {
         @Param(name="text", description="Username of the user to subscribe to")
                 String user) {
         producer.subscribe(subscriber, user);
-        return "(Not implemented yet) " + subscriber + " subscribed to " + user;
+        return subscriber + " subscribed to " + user;
     }
 
     @Command(description="Unsubscribe from an user")
@@ -43,7 +43,7 @@ public class ClientCLI {
             @Param(name="text", description="Username of the user to unsubscribe from")
                     String user) {
         producer.unsubscribe(subscriber, user);
-        return "(Not implemented yet) " + subscriber + " unsubscribed from " + user;
+        return subscriber + " unsubscribed from " + user;
     }
 
     @Command(description="Post a new tweet")

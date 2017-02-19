@@ -29,12 +29,16 @@ public class Producer implements ClientInterface {
 
     @Override
     public void subscribe(String subscriber, String user) {
-
+        NewFollower nf = new NewFollower(subscriber, user, false);
+        this.producer.send(inputDestination, nf);
+        logger.info("A subscription was sent.");
     }
 
     @Override
     public void unsubscribe(String subscriber, String user) {
-
+        NewFollower nf = new NewFollower(subscriber, user, true);
+        this.producer.send(inputDestination, nf);
+        logger.info("A subscription removal was sent.");
     }
 
     @Override

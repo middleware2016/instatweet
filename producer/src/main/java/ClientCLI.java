@@ -21,6 +21,7 @@ import static java.lang.System.exit;
 public class ClientCLI {
 
     private ClientInterface producer;
+    private int num = 0;
 
     public ClientCLI(ClientInterface producer) {
         this.producer = producer;
@@ -54,6 +55,12 @@ public class ClientCLI {
             String text) {
         producer.tweet(user, text, new BufferedImage(100,100, TYPE_INT_RGB));
         return "Tweet sent!";
+    }
+
+    @Command(description="test")
+    public String test() {
+        producer.tweet("TEST", "TEST2-"+num++, new BufferedImage(100,100, TYPE_INT_RGB));
+        return "TEST";
     }
 
     @Command(description="Display the list of tweets")

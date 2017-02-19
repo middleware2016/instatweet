@@ -109,10 +109,10 @@ public class InputServer extends UnicastRemoteObject implements InputServerInter
             Destination dispatchDest = (Destination) jndiContext.lookup(args[2]);
             Destination imagehandleDest = (Destination) jndiContext.lookup(args[3]);
             JMSContext context = connectionFactory.createContext();
-            DatabaseInterface db = (DatabaseInterface) registry.lookup(args[5]);
+            //DatabaseInterface db = (DatabaseInterface) registry.lookup(args[5]);
 
             // Construction of the object and binding
-            InputServer inputServer = new InputServer(context, registry, inputDest, dispatchDest, imagehandleDest, db, args[4]);
+            InputServer inputServer = new InputServer(context, registry, inputDest, dispatchDest, imagehandleDest, null, args[4]);
             registry.bind(args[6], inputServer);
             inputServer.start(); // main loop
 
@@ -138,6 +138,8 @@ public class InputServer extends UnicastRemoteObject implements InputServerInter
         @Override
         public void onMessage(Message message) {
             ObjectMessage msg = (ObjectMessage)message;
+            System.out.println("NEW MEX");
+            //logger.info("Received a message(MY): " + msg);
             try {
                 Object obj = msg.getObject();
                 logger.info("Received a message: " + obj.toString());

@@ -111,7 +111,7 @@ public class InputServer extends UnicastRemoteObject implements InputServerInter
             // Construction of the object and binding
             InputServer inputServer = new InputServer(context, registry, inputDest, dispatchDest, imagehandleDest, db, args[4]);
             registry.bind(args[6], inputServer);
-
+            System.out.println("InputDest: "+  args[1]);
             inputServer.start(); // main loop
 
             // Termination
@@ -138,7 +138,7 @@ public class InputServer extends UnicastRemoteObject implements InputServerInter
             ObjectMessage msg = (ObjectMessage)message;
             try {
                 Object obj = msg.getObject();
-                System.out.println(obj.toString());
+                System.out.println("Received a message: " + obj.toString());
             } catch(JMSException e) {
                 e.printStackTrace();
             }

@@ -20,7 +20,12 @@ public class Tweet implements Serializable {
     //When img is a thumbnail this is the id of the full image for the lookup in the database
     private int fullImgID;
 
-    public Tweet(){}
+    public Tweet(String publisherUsername, int publisherID, ImageIcon content, int fullImgID) {
+        this.publisherUsername = publisherUsername;
+        this.publisherID = publisherID;
+        this.content = content;
+        this.fullImgID = fullImgID;
+    }
 
     public Tweet(Tweet t){
         publisherUsername = t.publisherUsername;

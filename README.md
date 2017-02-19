@@ -33,9 +33,13 @@ Launch RMI registry in a different shell from instatweet folder
 
 In the previous shell again from instatweet folder run the server
 
-    ./run.sh
+    ./runServer.sh
     
-##Additional commands
+And then, the client:
+   
+    ./runClient.sh
+    
+## Additional commands
 In order to separately run the jars for testing purposes use the following commands
 
     appclient -client loadmanager/build/libs/loadmanager.jar jms/instatweet_connection_factory jms/input_queue jms/dispatch_queue jms/image_queue timeline/build/libs/timeline.jar inputserver/build/libs/inputserver.jar database/build/libs/database.jar dispatcher/build/libs/dispatcher.jar imagehandler/build/libs/imagehandler.jar

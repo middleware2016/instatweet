@@ -59,7 +59,7 @@ public class Tweet implements Serializable {
     public String toString() {
         return "Tweet{" +
                 "publisherUsername='" + getPublisherUsername() + '\'' +
-                "text='" + getText() + '\'' +
+                ", text='" + getText() + '\'' +
                 '}';
     }
 }

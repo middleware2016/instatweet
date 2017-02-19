@@ -13,8 +13,10 @@ public class NewUser implements Serializable {
         return username;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    @Override
+    public String toString() {
+        return "NewUser{" +
+                "username='" + username + '\'' +
+                '}';
     }
-
 }

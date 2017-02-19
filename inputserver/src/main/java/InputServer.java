@@ -20,49 +20,67 @@ public class InputServer extends UnicastRemoteObject implements InputServerInter
 
     private boolean stop;
     private Registry reg;
-    private JMSConsumer stream;
+    private JMSConsumer consumer;
     private JMSProducer dispatch;
+    private Destination inputDest;
     private Destination dispatchDest;
     private JMSProducer imagehandle;
     private Destination imagehandleDest;
     private DatabaseInterface db;
     private String timeline_jar_path;
+    private JMSContext context;
 
-    protected InputServer(Registry reg, JMSConsumer stream,
-                          JMSProducer dispatch, Destination dispatchDest,
-                          JMSProducer imagehandle, Destination imagehandleDest,
+    private MessageListener listener;
+
+    /**
+     * @param context the JMS Context used to create consumer and producers
+     * @param reg the RMI registry
+     * @param inputDest input destination for the incoming message queue from the clients (input)
+     * @param dispatchDest the destination for the dispatcher queue (output)
+     * @param imagehandleDest the destination for the image handler (output)
+     * @param db the object implementing the DatabaseInterface
+     * @param timeline_jar_path path of the JAR of the Timeline class
+     * @throws RemoteException
+     */
+    protected InputServer(JMSContext context, Registry reg, Destination inputDest,
+                          Destination dispatchDest, Destination imagehandleDest,
                           DatabaseInterface db, String timeline_jar_path) throws RemoteException {
+        this.context = context;
         this.reg=reg;
-        this.stream=stream;
-        this.dispatch=dispatch;
+        this.inputDest=inputDest;
         this.dispatchDest=dispatchDest;
-        this.imagehandle=imagehandle;
         this.imagehandleDest=imagehandleDest;
         this.db=db;
         this.timeline_jar_path=timeline_jar_path;
         stop=false;
+
+        this.consumer = context.createConsumer(inputDest);
+        this.dispatch = context.createProducer();
+        this.imagehandle = context.createProducer();
+
+        this.listener = new InputListener();
+        this.consumer.setMessageListener(this.listener);
     }
 
     @Override
     public synchronized void stop() throws RemoteException{
         stop = true;
+        notify();
+    }
+
+    public synchronized void start() {
+        while(!stop) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public synchronized boolean isStopped() {
         return stop;
     }
-
-    public void processNext(){
-
-        stream.receive(500);
-        //TODO do stuff
-        //wait new message
-        //if there is new user request process it
-        //if there is following request process it
-        //if there is an image forward to imagehandler
-        //otherwise send it to dispatcher
-    }
-
 
     public static void main(String args[]){
         if(args.length<7) {
@@ -82,30 +100,24 @@ public class InputServer extends UnicastRemoteObject implements InputServerInter
                 registry = LocateRegistry.getRegistry(args[7], Integer.parseInt(args[8]));
 
             Context jndiContext = new InitialContext();
+
             ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext.lookup(args[0]);
             Destination inputDest = (Destination) jndiContext.lookup(args[1]);
             Destination dispatchDest = (Destination) jndiContext.lookup(args[2]);
             Destination imagehandleDest = (Destination) jndiContext.lookup(args[3]);
             JMSContext context = connectionFactory.createContext();
-            JMSConsumer consumer = context.createConsumer(inputDest);
-            JMSProducer dispatch = context.createProducer();
-            JMSProducer imagehandle = context.createProducer();
-
             DatabaseInterface db = (DatabaseInterface) registry.lookup(args[5]);
 
-            InputServer inputServer = new InputServer(registry, consumer, dispatch, dispatchDest,
-                                                    imagehandle, imagehandleDest, db, args[4]);
-
+            // Construction of the object and binding
+            InputServer inputServer = new InputServer(context, registry, inputDest, dispatchDest, imagehandleDest, db, args[4]);
             registry.bind(args[6], inputServer);
 
-            while(!inputServer.isStopped()){
-                inputServer.processNext();
-            }
+            inputServer.start(); // main loop
 
+            // Termination
             registry.unbind(args[6]);
             System.out.println("InputServer " + args[6] + " unbound");
             exit(0);
-
 
         } catch (RemoteException | AlreadyBoundException | NotBoundException | NamingException e){
             e.printStackTrace();
@@ -113,5 +125,24 @@ public class InputServer extends UnicastRemoteObject implements InputServerInter
             exit(-1);
         }
 
+    }
+
+    /*
+        Class to listen asynchronously to incoming messages.
+        TODO: implement
+     */
+    class InputListener implements MessageListener {
+
+        @Override
+        public void onMessage(Message message) {
+            ObjectMessage msg = (ObjectMessage)message;
+            try {
+                Object obj = msg.getObject();
+                System.out.println(obj.toString());
+            } catch(JMSException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 }

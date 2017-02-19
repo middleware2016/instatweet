@@ -291,7 +291,7 @@ project(':loadmanager') {
 project(':producer') {
     apply plugin: 'application'
 
-    mainClassName = 'Producer'
+    mainClassName = 'ClientCLI'
 
     apply plugin: 'java'
     apply plugin: 'war'
@@ -305,6 +305,8 @@ project(':producer') {
         providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
         runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
         compile project(':utility')
+        // https://mvnrepository.com/artifact/com.googlecode.clichemaven/cliche
+        compile group: 'com.googlecode.clichemaven', name: 'cliche', version: '110413'
     }
 
     jar {
@@ -320,7 +322,7 @@ project(':producer') {
             attributes(
                     "Implementation-Timestamp": new Date(),
                     "Class-Path": configurations.compile.collect { it.getName() }.join(' '),
-                    'Main-Class' : 'Producer')
+                    'Main-Class' : 'ClientCLI')
         }
     }
 }

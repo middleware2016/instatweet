@@ -54,4 +54,12 @@ public class Tweet implements Serializable {
     public int getFullImgID() {
         return fullImgID;
     }
+
+    @Override
+    public String toString() {
+        return "Tweet{" +
+                "publisherUsername='" + getPublisherUsername() + '\'' +
+                "text='" + getText() + '\'' +
+                '}';
+    }
 }

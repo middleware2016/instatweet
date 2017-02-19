@@ -1,16 +1,12 @@
-import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSContext;
 import javax.jms.JMSProducer;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
-import static java.lang.System.exit;
-
-public class Producer {
+public class Producer implements ClientInterface {
     private JMSContext context;
     private Destination inputDestination;
     private JMSProducer producer;
@@ -24,36 +20,25 @@ public class Producer {
         this.producer = context.createProducer();
     }
 
-    public void sendTextTweet(String txt) {
-        Tweet t = new Tweet("pietrodn", 2, null, 0);
+    @Override
+    public void tweet(String user, String text, Image image) {
+        Tweet t = new Tweet(user, text, image);
         this.producer.send(inputDestination, t);
         logger.info("Sent a tweet: " + t.toString());
     }
 
-    public static void main(String args[]){
-        if(args.length<3) {
-            System.out.println("Producer arguments: connection-factory-name input-queue-name " +
-                    " timeline-jar-path");
-            return;
-        }
+    @Override
+    public void subscribe(String subscriber, String user) {
 
-        try {
-            Context jndiContext = new InitialContext();
+    }
 
-            ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext.lookup(args[0]);
-            Destination inputDest = (Destination) jndiContext.lookup(args[1]);
-            JMSContext context = connectionFactory.createContext();
+    @Override
+    public void unsubscribe(String subscriber, String user) {
 
-            // Construction of the object and binding
-            Producer prod = new Producer(context, inputDest);
+    }
 
-            prod.sendTextTweet("ciaone");
-            prod.sendTextTweet("lol");
-
-        } catch (NamingException e){
-            e.printStackTrace();
-            exit(-1);
-        }
-
+    @Override
+    public List<Tweet> getTimeline() {
+        return new ArrayList<>();
     }
 }

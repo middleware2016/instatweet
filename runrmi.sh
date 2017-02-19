@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
 
-CURRENT_PATH=`pwd`
-
-rmiregistry -J-Djava.rmi.server.codebase=file://${CURRENT_PATH}/rmicodebase/
+echo "Launching rmiregistry..."
+(rmiregistry -J-Djava.rmi.server.codebase=file://$(pwd)/rmicodebase/ &) && echo "rmiregistry launched and running in background."

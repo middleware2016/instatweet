@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <bytecodeTargetLevel>
+      <module name="consumer_main" target="1.8" />
+      <module name="consumer_test" target="1.8" />
+      <module name="database_main" target="1.8" />
+      <module name="database_test" target="1.8" />
+      <module name="dispatcher_main" target="1.8" />
+      <module name="dispatcher_test" target="1.8" />
+      <module name="imagedatabase_main" target="1.8" />
+      <module name="imagedatabase_test" target="1.8" />
+      <module name="imagehandler_main" target="1.8" />
+      <module name="imagehandler_test" target="1.8" />
+      <module name="inputserver_main" target="1.8" />
+      <module name="inputserver_test" target="1.8" />
+      <module name="instatweet_main" target="1.8" />
+      <module name="instatweet_test" target="1.8" />
+      <module name="loadmanager_main" target="1.8" />
+      <module name="loadmanager_test" target="1.8" />
+      <module name="producer_main" target="1.8" />
+      <module name="producer_test" target="1.8" />
+      <module name="server_main" target="1.8" />
+      <module name="server_test" target="1.8" />
+      <module name="timeline_main" target="1.8" />
+      <module name="timeline_test" target="1.8" />
+      <module name="userdatabase_main" target="1.8" />
+      <module name="userdatabase_test" target="1.8" />
+      <module name="utility_main" target="1.8" />
+      <module name="utility_test" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+</project>

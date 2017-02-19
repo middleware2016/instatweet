@@ -46,6 +46,6 @@ In order to separately run the jars for testing purposes use the following comma
     appclient -client inputserver/build/libs/inputserver.jar jms/instatweet_connection_factory jms/input_queue jms/dispatch_queue jms/image_queue timeline/build/libs/timeline.jar instatweet_database input_server_0
     java -jar database/build/libs/database.jar instatweet_database
     appclient -client dispatcher/build/libs/dispatcher.jar jms/instatweet_connection_factory jms/dispatch_queue dispatcher_0
-
+    appclient -client imagehandler/build/libs/imagehandler.jar jms/instatweet_connection_factory jms/image_queue jms/dispatch_queue instatweet_database imagehandler_0
 
 

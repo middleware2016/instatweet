@@ -11,17 +11,17 @@ import java.util.List;
  */
 public interface DatabaseInterface extends Remote{
 
-    public int addUser(String name) throws RemoteException, IllegalArgumentException;
-    public void removeUser(int userID) throws RemoteException;
-    public String getName(int userID) throws RemoteException;
+    public void addUser(String name) throws RemoteException, IllegalArgumentException;
+    public void removeUser(String username) throws RemoteException;
+    public boolean isUser(String username) throws RemoteException;
 
-    public void addTimeline(int userID, Object timeline) throws RemoteException;
-    public void removeTimeline(int userID) throws RemoteException;
-    public Object getTimeline(int userID) throws RemoteException;
+    public void addTimeline(String username, Object timeline) throws RemoteException;
+    public void removeTimeline(String username) throws RemoteException;
+    public Object getTimeline(String username) throws RemoteException;
 
-    public List<Integer> getSubscribers(int userID) throws RemoteException;
-    public void addSubscriber(int userID, int subscriberID) throws RemoteException;
-    public void removeSubscriber(int userID, int subscriberID) throws RemoteException;
+    public List<String> getSubscribers(String username) throws RemoteException;
+    public void addSubscriber(String username, String subscriberUsername) throws RemoteException;
+    public void removeSubscriber(String username, String subscriberUsername) throws RemoteException;
 
     public int addImage(ImageIcon img) throws RemoteException;
     public ImageIcon getImage(int imageID) throws RemoteException;

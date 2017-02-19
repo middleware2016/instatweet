@@ -20,18 +20,16 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface{
 
     private Registry registry;
     private String rmi_name;
-    private Map<Integer, String> users;
-    private int nextUserID;
-    private Map<Integer, Object> timelines;
-    private Map<Integer, List<Integer>> subscriptions;
+    private List<String> users;
+    private Map<String, Object> timelines;
+    private Map<String, List<String>> subscriptions;
     private Map<Integer, ImageIcon> images;
     private int nextImageID;
 
     public Database(Registry registry, String rmi_name) throws RemoteException {
         this.registry=registry;
         this.rmi_name=rmi_name;
-        users = new HashMap<>();
-        nextUserID = 0;
+        users = new ArrayList<>();
         timelines = new HashMap<>();
         subscriptions = new HashMap<>();
         images = new HashMap<>();
@@ -81,52 +79,50 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface{
     }
 
     @Override
-    public int addUser(String name) throws RemoteException, IllegalArgumentException {
+    public void addUser(String username) throws RemoteException, IllegalArgumentException {
         synchronized (users){
-            if(users.containsValue(name))
+            if(users.contains(username))
                 throw new IllegalArgumentException("The username is already in the database");
-            users.put(nextUserID, name);
-            return nextUserID++;
+            users.add(username);
         }
     }
 
     @Override
-    public void removeUser(int userID) throws RemoteException {
+    public void removeUser(String username) throws RemoteException {
         synchronized (users){
-            users.remove(userID);
+            users.remove(username);
         }
     }
 
     @Override
-    public String getName(int userID) throws RemoteException {
-        synchronized (users){
-            return users.get(userID);
-        }
+    public boolean isUser(String username) throws RemoteException {
+        return users.contains(username);
+    }
+
+
+    @Override
+    public void addTimeline(String username, Object timeline) throws RemoteException {
+        timelines.put(username,timeline);
     }
 
     @Override
-    public void addTimeline(int userID, Object timeline) throws RemoteException {
-        timelines.put(userID,timeline);
+    public void removeTimeline(String username) throws RemoteException {
+        timelines.remove(username);
     }
 
     @Override
-    public void removeTimeline(int userID) throws RemoteException {
-        timelines.remove(userID);
+    public Object getTimeline(String username) throws RemoteException {
+        return timelines.get(username);
     }
 
     @Override
-    public Object getTimeline(int userID) throws RemoteException {
-        return timelines.get(userID);
-    }
+    public List<String> getSubscribers(String username) throws RemoteException {
 
-    @Override
-    public List<Integer> getSubscribers(int userID) throws RemoteException {
-
-        List<Integer> list;
+        List<String> list;
 
         synchronized (subscriptions) {
             //Map.get returns null if the key is not present
-            list = subscriptions.get(userID);
+            list = subscriptions.get(username);
         }
 
         if (list != null)
@@ -137,34 +133,40 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface{
     }
 
     @Override
-    public void addSubscriber(int userID, int subscriberID) throws RemoteException {
+    public void addSubscriber(String username, String subscriberUsername) throws RemoteException {
 
-        List<Integer> list;
+        List<String> list;
 
         synchronized (subscriptions) {
             //Map.get returns null if the key is not present
-            list = subscriptions.get(userID);
+            list = subscriptions.get(username);
             if(list == null){
                 list = new ArrayList<>();
-                subscriptions.put(userID, list);
+                subscriptions.put(username, list);
             }
         }
 
         synchronized (list) {
-            list.add(subscriberID);
+            list.add(subscriberUsername);
         }
 
 
     }
 
     @Override
-    public void removeSubscriber(int userID, int subscriberID) throws RemoteException {
+    public void removeSubscriber(String username, String subscriberUsername) throws RemoteException {
 
-        List<Integer> list;
+        List<String> list;
 
         synchronized (subscriptions) {
             //Map.get returns null if the key is not present
-            subscriptions.remove(userID);
+            list = subscriptions.get(username);
+        }
+
+        if(list!=null){
+            synchronized (list){
+                list.remove(subscriberUsername);
+            }
         }
     }
 

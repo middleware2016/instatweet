@@ -34,7 +34,7 @@ public class ImageHandler extends UnicastRemoteObject implements ImageHandlerInt
         this.stop = false;
         this.reg=reg;
         this.db=db;
-        this.inputDest=outputDest;
+        this.inputDest = inputDest;
         this.outputDest=outputDest;
         this.context = context;
 

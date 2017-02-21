@@ -1,6 +1,7 @@
 import javax.jms.Destination;
 import javax.jms.JMSContext;
 import javax.jms.JMSProducer;
+import javax.management.openmbean.KeyAlreadyExistsException;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,14 @@ public class Producer implements ClientInterface {
         NewFollower nf = new NewFollower(subscriber, user, true);
         this.producer.send(inputDestination, nf);
         logger.info("A subscription removal was sent.");
+    }
+
+    @Override
+    public void newUser(String name) throws KeyAlreadyExistsException {
+        // TODO: implement, throw exception if the user already exists.
+        NewUser nu = new NewUser(name);
+        this.producer.send(inputDestination, nu);
+        logger.info(String.format("(Not implemented) User @%s should be created.", name));
     }
 
     @Override

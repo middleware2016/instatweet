@@ -1,3 +1,4 @@
+import javax.management.openmbean.KeyAlreadyExistsException;
 import java.awt.*;
 import java.util.List;
 
@@ -8,5 +9,6 @@ public interface ClientInterface {
     public void tweet(String user, String text, Image image);
     public void subscribe(String subscriber, String user);
     public void unsubscribe(String subscriber, String user);
+    public void newUser(String name) throws KeyAlreadyExistsException;
     public List<Tweet> getTimeline();
 }

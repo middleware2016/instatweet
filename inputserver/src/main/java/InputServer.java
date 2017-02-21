@@ -131,20 +131,38 @@ public class InputServer extends UnicastRemoteObject implements InputServerInter
 
     /*
         Class to listen asynchronously to incoming messages.
-        TODO: implement
+        TODO: should the different messages be sent to different queues?
      */
     class InputListener implements MessageListener {
 
         @Override
         public void onMessage(Message message) {
             ObjectMessage msg = (ObjectMessage)message;
+            Object obj;
             try {
-                Object obj = msg.getObject();
-                logger.info("[InputServer] Received a message: " + obj.toString());
+                obj = msg.getObject();
+                if(obj.getClass().getName().equals("Tweet")) {
+                    handleTweet((Tweet) obj);
+                } else if (obj.getClass().getName().equals("NewFollower")) {
+                    handleFollowingRequest((NewFollower) obj);
+                }
             } catch(JMSException e) {
                 e.printStackTrace();
             }
 
+        }
+
+        private void handleTweet(Tweet tw) {
+            logger.info(String.format("[InputServer] Tweet @%s: '%s'", tw.getPublisherUsername(), tw.getText()));
+            // TODO: Here the tweet should be modified
+            // Image handling missing
+            dispatch.send(dispatchDest, tw);
+        }
+
+        private void handleFollowingRequest(NewFollower nf) {
+            String action = (nf.isRemove() ? "unfollows" : "follows");
+            logger.info(String.format("[InputServer] @%s %s @%s", nf.getUsername(), action, nf.getToBeFollowedUsername()));
+            dispatch.send(dispatchDest, nf);
         }
     }
 }

@@ -5,6 +5,7 @@ import asg.cliche.ShellFactory;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSContext;
+import javax.management.openmbean.KeyAlreadyExistsException;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -65,6 +66,16 @@ public class ClientCLI {
             out += t.toString() + "\n";
         }
         return out;
+    }
+
+    @Command(description="Create a new user with the given name", name="new_user", abbrev="n")
+    public String newUser(String name) {
+        try {
+            producer.newUser(name);
+            return "User created.";
+        } catch(KeyAlreadyExistsException e) {
+            return String.format("User @%s already exists!", name);
+        }
     }
 
     public void runShell() throws IOException {

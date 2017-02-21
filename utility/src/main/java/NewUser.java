@@ -19,4 +19,8 @@ public class NewUser implements Serializable {
                 "username='" + username + '\'' +
                 '}';
     }
+
+    public NewUser(String username) {
+        this.username = username;
+    }
 }

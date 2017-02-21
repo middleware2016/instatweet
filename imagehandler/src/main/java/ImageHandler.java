@@ -8,6 +8,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.logging.Logger;
 
 import static java.lang.System.exit;
 
@@ -20,39 +21,48 @@ public class ImageHandler extends UnicastRemoteObject implements ImageHandlerInt
 
     private boolean stop;
     private Registry reg;
-    private JMSConsumer stream;
+    private JMSConsumer consumer;
     private JMSProducer output;
-    private Destination outputDest;
+    private Destination outputDest, inputDest;
     private DatabaseInterface db;
+    private JMSContext context;
+    private MessageListener listener;
 
-    protected ImageHandler(Registry reg, JMSConsumer stream, JMSProducer output, Destination outputDest, DatabaseInterface db) throws RemoteException {
+    private static Logger logger = Logger.getLogger(ImageHandler.class.getName());
+
+    protected ImageHandler(JMSContext context, Destination inputDest, Destination outputDest, Registry reg, DatabaseInterface db) throws RemoteException {
+        this.stop = false;
         this.reg=reg;
-        this.stream=stream;
-        this.output=output;
-        this.outputDest=outputDest;
         this.db=db;
-        stop=false;
+        this.inputDest=outputDest;
+        this.outputDest=outputDest;
+        this.context = context;
+
+        this.consumer = context.createConsumer(inputDest);
+        this.output = context.createProducer();
+
+        this.listener = new ImgListener();
+        consumer.setMessageListener(this.listener);
     }
 
     @Override
     public synchronized void stop() throws RemoteException{
         stop = true;
+        notify();
     }
 
     public synchronized boolean isStopped() {
         return stop;
     }
 
-    public void processNext(){
-
-        stream.receive(500);
-        //TODO do stuff
-        //wait new message
-        //take image from tweet
-        //create thumbnail
-        //add full image to database
-        //create new version of the tweet
-        //send new tweet to publishing queue
+    public synchronized void start() {
+        while(!stop) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 
@@ -77,18 +87,13 @@ public class ImageHandler extends UnicastRemoteObject implements ImageHandlerInt
             Destination inputDest = (Destination) jndiContext.lookup(args[1]);
             Destination outputDest = (Destination) jndiContext.lookup(args[2]);
             JMSContext context = connectionFactory.createContext();
-            JMSConsumer consumer = context.createConsumer(inputDest);
-            JMSProducer producer = context.createProducer();
-
             DatabaseInterface db = (DatabaseInterface) registry.lookup(args[3]);
 
-            ImageHandler imgHandler = new ImageHandler(registry, consumer, producer, outputDest, db);
-
+            // Initialization and binding
+            ImageHandler imgHandler = new ImageHandler(context, inputDest, outputDest, registry, db);
             registry.bind(args[4], imgHandler);
 
-            while(!imgHandler.isStopped()){
-                imgHandler.processNext();
-            }
+            imgHandler.start();
 
             registry.unbind(args[4]);
             System.out.println("ImageHandler " + args[4] + " unbound");
@@ -100,5 +105,24 @@ public class ImageHandler extends UnicastRemoteObject implements ImageHandlerInt
             exit(-1);
         }
 
+    }
+
+    /*
+        Class to listen asynchronously to incoming messages.
+        TODO: implement
+    */
+    class ImgListener implements MessageListener {
+
+        @Override
+        public void onMessage(Message message) {
+            ObjectMessage msg = (ObjectMessage)message;
+            try {
+                Object obj = msg.getObject();
+                logger.info("[ImageHandler] Received a message: " + obj.toString());
+            } catch(JMSException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 }

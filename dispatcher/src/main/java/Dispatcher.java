@@ -1,7 +1,4 @@
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import javax.jms.JMSConsumer;
-import javax.jms.JMSContext;
+import javax.jms.*;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -11,6 +8,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.logging.Logger;
 
 import static java.lang.System.exit;
 
@@ -24,32 +22,39 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInterfa
 
     private boolean stop;
     private Registry reg;
-    private JMSConsumer stream;
+    private JMSConsumer consumer;
+    private JMSContext context;
+    private MessageListener listener;
+    private static Logger logger = Logger.getLogger(Dispatcher.class.getName());
 
-    public Dispatcher(Registry reg, JMSConsumer stream) throws RemoteException {
+    public Dispatcher(JMSContext context, Destination dest, Registry reg) throws RemoteException {
+        this.stop = false;
         this.reg = reg;
-        this.stream = stream;
-        stop = false;
+        this.consumer = context.createConsumer(dest);
+        this.listener = new DispatcherListener();
+        this.consumer.setMessageListener(this.listener);
     }
 
     @Override
     public synchronized void stop() throws RemoteException{
         stop = true;
+        notify();
+    }
+
+    public synchronized void start() {
+        while(!stop) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public synchronized boolean isStopped() {
         return stop;
     }
 
-    public void processNext(){
-
-        stream.receive(500);
-        //TODO do stuff
-        //wait new message
-        //take userID from message
-        //lookup the followers of that user
-        //for every follower using RMI find the timeline and update it
-    }
 
     public static void main(String args[]){
         if(args.length<3) {
@@ -70,15 +75,12 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInterfa
             ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext.lookup(args[0]);
             Destination dest = (Destination) jndiContext.lookup(args[1]);
             JMSContext context = connectionFactory.createContext();
-            JMSConsumer consumer = context.createConsumer(dest);
 
-            Dispatcher disp = new Dispatcher(registry, consumer);
-
+            // Construction and binding
+            Dispatcher disp = new Dispatcher(context, dest, registry);
             registry.bind(args[2], disp);
 
-            while(!disp.isStopped()){
-                disp.processNext();
-            }
+            disp.start();
 
             registry.unbind(args[2]);
             System.out.println("Dispatcher " + args[2] + " unbound");
@@ -91,5 +93,24 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInterfa
             exit(-1);
         }
 
+    }
+
+    /*
+        Class to listen asynchronously to incoming messages.
+        TODO: implement
+    */
+    class DispatcherListener implements MessageListener {
+
+        @Override
+        public void onMessage(Message message) {
+            ObjectMessage msg = (ObjectMessage)message;
+            try {
+                Object obj = msg.getObject();
+                logger.info("[Dispatcher] Received a message: " + obj.toString());
+            } catch(JMSException e) {
+                e.printStackTrace();
+            }
+
+        }
     }
 }

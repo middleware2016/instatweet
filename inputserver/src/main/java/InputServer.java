@@ -140,7 +140,7 @@ public class InputServer extends UnicastRemoteObject implements InputServerInter
             ObjectMessage msg = (ObjectMessage)message;
             try {
                 Object obj = msg.getObject();
-                logger.info("Received a message: " + obj.toString());
+                logger.info("[InputServer] Received a message: " + obj.toString());
             } catch(JMSException e) {
                 e.printStackTrace();
             }

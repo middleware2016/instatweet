@@ -57,11 +57,16 @@ public class ClientCLI {
     public String read(String user, int quantity) {
         String out = "";
         List<Tweet> tweets = producer.getLastTweets(user, quantity);
-        out += String.format("%d new tweets:\n", tweets.size());
+        out += String.format("%d new tweets for @%s:\n", tweets.size(), user);
         for(Tweet t: tweets) {
-            out += t.toString() + "\n";
+            out += String.format("@%s:\t%s\n", t.getPublisherUsername(), t.getText());
         }
         return out;
+    }
+
+    @Command(description="Display 10 tweets for the specified user")
+    public String read(String user) {
+        return read(user, 10);
     }
 
     public void runShell() throws IOException {

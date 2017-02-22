@@ -24,6 +24,7 @@ import static java.lang.Thread.sleep;
  */
 public class LoadManager {
 
+    public static final String accesspoint_rmi_name = "instatweet_accesspoint";
     //JMS names
     private static String connection_factory_name;
     private static String input_queue_name;
@@ -132,6 +133,7 @@ public class LoadManager {
             // Create AccessPoint
             logger.info("Initialize AccessPoint");
             createAccessPoint();
+            waitForRMIObject(accesspoint_rmi_name);
 
             logger.info("Everything initialized");
 
@@ -246,18 +248,25 @@ public class LoadManager {
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    private static void createAccessPoint() throws AlreadyBoundException, RemoteException, NotBoundException, InterruptedException {
-        DatabaseInterface db = null;
-        while(db == null) {
+    private static Object waitForRMIObject(String name) {
+        Object obj = null;
+        while(obj == null) {
             try {
-                db = (DatabaseInterface) registry.lookup(database_rmi_name);
-            } catch (NotBoundException e) {
-                sleep(100);
+                obj = registry.lookup(name);
+            } catch (NotBoundException | RemoteException e) {
+                try {
+                    sleep(100);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
             }
         }
-
+        return obj;
+    }
+    private static void createAccessPoint() throws AlreadyBoundException, RemoteException, NotBoundException, InterruptedException {
+        DatabaseInterface db = (DatabaseInterface)waitForRMIObject(database_rmi_name);
         AccessPoint ap = new AccessPoint(db);
-        registry.bind("instatweet_accesspoint", ap);
+        registry.bind(accesspoint_rmi_name, ap);
     }
 
     private static void createInputServer() throws IOException {

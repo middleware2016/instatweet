@@ -35,6 +35,7 @@ public class Timeline extends UnicastRemoteObject implements TimelineInterface, 
     private JMSProducer tweetProducer;
 
     public Timeline(Registry registry, String username, DatabaseInterface db, JMSContext context, Destination dispatchDest) throws RemoteException {
+        super();
         this.registry=registry;
         this.username=username;
         this.db=db;
@@ -45,12 +46,12 @@ public class Timeline extends UnicastRemoteObject implements TimelineInterface, 
 
         this.tweetProducer = context.createProducer();
 
-        db.addUser(username, this);
         try {
             registry.bind("instatweet_timeline" + this.username, this);
         } catch (AlreadyBoundException e) {
             e.printStackTrace();
         }
+        db.addUser(username, this);
     }
 
     public synchronized void runTimeline() throws AlreadyBoundException, RemoteException, NotBoundException, InterruptedException {

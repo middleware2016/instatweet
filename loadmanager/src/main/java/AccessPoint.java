@@ -13,6 +13,7 @@ public class AccessPoint extends UnicastRemoteObject implements AccessPointInter
     private static Logger logger = Logger.getLogger(AccessPoint.class.getName());
 
     public AccessPoint(DatabaseInterface db) throws RemoteException {
+        super();
         this.db = db;
     }
 

@@ -1,5 +1,4 @@
 import javax.swing.*;
-import java.awt.*;
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -7,7 +6,6 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
-import java.util.List;
 
 import static java.lang.System.exit;
 
@@ -26,6 +24,7 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface{
     private int nextImageID;
 
     public Database(Registry registry, String rmi_name) throws RemoteException {
+        super();
         this.registry=registry;
         this.rmi_name=rmi_name;
         users = new HashMap<>();

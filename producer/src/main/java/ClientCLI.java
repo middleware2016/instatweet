@@ -77,7 +77,7 @@ public class ClientCLI {
         try {
             // Construction of the object and binding
             Registry reg = LocateRegistry.getRegistry();
-            ClientInterface producer = new Producer(reg, args[1]);
+            ClientInterface producer = new Producer(reg, args[0]);
             ClientCLI cli = new ClientCLI(producer);
             cli.runShell();
 

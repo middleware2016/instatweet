@@ -15,6 +15,7 @@ import java.util.Scanner;
 import java.util.logging.Logger;
 
 import static java.lang.System.exit;
+import static java.lang.Thread.sleep;
 
 /**
  * Class that initializes the system and manages the scaling
@@ -144,7 +145,7 @@ public class LoadManager {
             exit(0);
 
 
-        } catch (IOException | NamingException | JMSException | AlreadyBoundException | NotBoundException e) {
+        } catch (IOException | NamingException | JMSException | AlreadyBoundException | NotBoundException | InterruptedException e) {
             e.printStackTrace();
             logger.info("Exiting LoadManager");
             exit(-1);
@@ -245,8 +246,16 @@ public class LoadManager {
 
     ////////////////////////////////////////////////////////////////////////////////
 
-    private static void createAccessPoint() throws AlreadyBoundException, RemoteException, NotBoundException {
-        DatabaseInterface db = (DatabaseInterface) registry.lookup(database_rmi_name);
+    private static void createAccessPoint() throws AlreadyBoundException, RemoteException, NotBoundException, InterruptedException {
+        DatabaseInterface db = null;
+        while(db == null) {
+            try {
+                db = (DatabaseInterface) registry.lookup(database_rmi_name);
+            } catch (NotBoundException e) {
+                sleep(100);
+            }
+        }
+
         AccessPoint ap = new AccessPoint(db);
         registry.bind("instatweet_accesspoint", ap);
     }

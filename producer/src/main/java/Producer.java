@@ -52,7 +52,7 @@ public class Producer implements ClientInterface {
     @Override
     public void subscribe(String subscriber, String toFollow) {
         try {
-            getTimelineForUser(toFollow).addSubscriber(subscriber);
+            getTimelineForUser(subscriber).subscribeTo(toFollow);
             logger.fine("A subscription was sent.");
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -63,7 +63,7 @@ public class Producer implements ClientInterface {
     @Override
     public void unsubscribe(String subscriber, String toUnfollow) {
         try {
-            getTimelineForUser(toUnfollow).removeSubscriber(subscriber);
+            getTimelineForUser(subscriber).unsubscribeFrom(toUnfollow);
             logger.fine("A subscription removal was sent.");
         } catch (RemoteException e) {
             e.printStackTrace();

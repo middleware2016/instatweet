@@ -98,13 +98,13 @@ public class Timeline extends UnicastRemoteObject implements TimelineInterface, 
     }
 
     @Override
-    public void addSubscriber(String subscriber) throws RemoteException {
-        db.addSubscriber(this.username, subscriber);
+    public void subscribeTo(String toFollow) throws RemoteException {
+        db.addSubscriber(toFollow, this.username);
     }
 
     @Override
-    public void removeSubscriber(String subscriber) throws RemoteException {
-        db.removeSubscriber(this.username, subscriber);
+    public void unsubscribeFrom(String toUnfollow) throws RemoteException {
+        db.removeSubscriber(toUnfollow, this.username);
     }
 
     public static void main(String args[]){

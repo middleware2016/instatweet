@@ -143,6 +143,8 @@ public class Timeline extends UnicastRemoteObject implements TimelineInterface, 
 
             System.out.println("Timeline " + args[1] + " unbound");
 
+            exit(0);
+
 
         } catch (RemoteException | AlreadyBoundException | NotBoundException | InterruptedException | NamingException e){
             e.printStackTrace();

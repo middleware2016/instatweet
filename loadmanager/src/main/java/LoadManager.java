@@ -27,16 +27,12 @@ public class LoadManager {
     public static final String accesspoint_rmi_name = "instatweet_accesspoint";
     //JMS names
     private static String connection_factory_name;
-    private static String input_queue_name;
     private static String dispatch_destination_name;
-    private static String imagehandle_destination_name;
 
     //Jar paths
     private static String timeline_jar_path;
-    private static String input_server_jar_path;
     private static String database_jar_path;
     private static String dispatcher_jar_path;
-    private static String image_handler_jar_path;
 
     //RMI ip and port
     private static String rmi_ip_port;
@@ -44,22 +40,14 @@ public class LoadManager {
 
     //Bases of the class names
     private static String database_rmi_name = "instatweet_database";
-    private static String input_server_rmi_name = "instatweet_inputserver";
-    private static String image_handler_rmi_name = "instatweet_imagehandler";
     private static String dispatcher_rmi_name = "instatweet_dispatcher";
 
     //Containers for classes
-    private static List<String> input_server_list = new ArrayList<>();
-    private static int input_server_counter = 0;
-    private static List<String> image_handler_list = new ArrayList<>();
-    private static int image_handler_counter = 0;
     private static List<String> dispatcher_list = new ArrayList<>();
     private static int dispatcher_counter = 0;
 
     //JMS queue browsers
-    private static QueueBrowser input_queue_browser;
     private static QueueBrowser dispatch_destination_browser;
-    private static QueueBrowser imagehandle_destination_browser;
 
     //Scaling parameters
     private static int maxMessPerElem = 50;
@@ -69,35 +57,31 @@ public class LoadManager {
 
 
     public static void main(String args[]) {
-        if (args.length < 9) {
-            System.out.println("LoadManager arguments: connection-factory-name input-queue-name " +
-                    "dispatch-destination-name imagehandle-destination-name timeline-jar-path" +
-                    "input-server-jar-path database-jar-path dispatcher-jar-path image-handler-jar-path " +
+        if (args.length < 5) {
+            System.out.println("LoadManager arguments: connection-factory-name  " +
+                    "dispatch-destination-name timeline-jar-path" +
+                    "database-jar-path dispatcher-jar-path " +
                     "[rmi-registry-ip  rmi-registry-port]");
             return;
         }
 
         connection_factory_name = args[0];
-        input_queue_name = args[1];
-        dispatch_destination_name = args[2];
-        imagehandle_destination_name = args[3];
+        dispatch_destination_name = args[1];
 
-        timeline_jar_path = args[4];
-        input_server_jar_path = args[5];
-        database_jar_path = args[6];
-        dispatcher_jar_path = args[7];
-        image_handler_jar_path = args[8];
+        timeline_jar_path = args[2];
+        database_jar_path = args[3];
+        dispatcher_jar_path = args[4];
 
 
         try {
             //Initialize RMI
-            if (args.length < 11) {
+            if (args.length < 6) {
                 System.out.println("Using default rmi ip and port");
                 registry = LocateRegistry.getRegistry();
                 rmi_ip_port = "";
             } else {
-                registry = LocateRegistry.getRegistry(args[9], Integer.parseInt(args[10]));
-                rmi_ip_port = args[9] + " " + args[10];
+                registry = LocateRegistry.getRegistry(args[5], Integer.parseInt(args[6]));
+                rmi_ip_port = args[5] + " " + args[6];
             }
 
             //JMS initialization
@@ -105,26 +89,13 @@ public class LoadManager {
             ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext.lookup(connection_factory_name);
             JMSContext context = connectionFactory.createContext();
 
-            Queue input_queue = (Queue) jndiContext.lookup(input_queue_name);
             Queue dispatch_queue = (Queue) jndiContext.lookup(dispatch_destination_name);
-            Queue imagehandle_queue = (Queue) jndiContext.lookup(imagehandle_destination_name);
 
-            input_queue_browser = context.createBrowser(input_queue);
             dispatch_destination_browser = context.createBrowser(dispatch_queue);
-            imagehandle_destination_browser = context.createBrowser(imagehandle_queue);
-
 
             //Database creation
             logger.info("Initialize database");
             Runtime.getRuntime().exec("java -jar " + database_jar_path + " " + database_rmi_name + " " + rmi_ip_port);
-
-            //Create first input server
-            logger.info("Initialize first input server");
-            createInputServer();
-
-            //Create first image handler
-            logger.info("Initialize first image handler");
-            createImageHandler();
 
             //Create first dispatcher
             logger.info("Initialize first dispatcher");
@@ -198,24 +169,7 @@ public class LoadManager {
 
 
     private static void scalingAnalysis() throws JMSException, IOException {
-        inputQueueScaling();
         dispatchQueueScaling();
-        imagehandleQueueScaling();
-    }
-
-    private static void inputQueueScaling() throws JMSException, IOException {
-
-        int i=0;
-        Enumeration e = input_queue_browser.getEnumeration();
-
-        while(e.hasMoreElements())
-            i++;
-
-        if(((float) i)/input_server_list.size() > maxMessPerElem)
-            createInputServer();
-        else if (((float) i)/input_server_list.size() < minMessPerElem && input_server_list.size()>1)
-            deleteInputServer();
-
     }
 
     private static void dispatchQueueScaling() throws JMSException, IOException {
@@ -230,20 +184,6 @@ public class LoadManager {
             createDispatcher();
         else if(((float) i)/dispatcher_list.size() < minMessPerElem && dispatcher_list.size()>1)
             deleteDispatcher();
-    }
-
-    private static void imagehandleQueueScaling() throws JMSException, IOException {
-
-        int i=0;
-        Enumeration e = imagehandle_destination_browser.getEnumeration();
-
-        while(e.hasMoreElements())
-            i++;
-
-        if(((float) i)/image_handler_list.size() > maxMessPerElem)
-            createImageHandler();
-        else if (((float) i)/image_handler_list.size() < minMessPerElem && image_handler_list.size()>1)
-            deleteImageHandler();
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -269,21 +209,6 @@ public class LoadManager {
         registry.bind(accesspoint_rmi_name, ap);
     }
 
-    private static void createInputServer() throws IOException {
-
-        String name = input_server_rmi_name + "_" + input_server_counter;
-
-        ProcessBuilder pb =
-                new ProcessBuilder("appclient", "-client", input_server_jar_path,
-                connection_factory_name, input_queue_name, dispatch_destination_name,
-                imagehandle_destination_name, timeline_jar_path, database_rmi_name, name, rmi_ip_port);
-        pb.inheritIO().start();
-
-        input_server_list.add(name);
-
-        input_server_counter++;
-    }
-
     private static void createDispatcher() throws IOException {
         String name = dispatcher_rmi_name + "_" + dispatcher_counter;
 
@@ -298,20 +223,6 @@ public class LoadManager {
         dispatcher_counter ++;
     }
 
-    private static void createImageHandler() throws IOException {
-        String name = image_handler_rmi_name + "_" + image_handler_counter;
-
-        ProcessBuilder pb =
-                new ProcessBuilder("appclient", "-client",
-                        image_handler_jar_path, connection_factory_name, imagehandle_destination_name,
-                        dispatch_destination_name, database_rmi_name, name, rmi_ip_port);
-        pb.inheritIO().start();
-
-        image_handler_list.add(name);
-
-        image_handler_counter++;
-    }
-
     static void createTimeline(String user) throws IOException {
         ProcessBuilder pb =
                 new ProcessBuilder("appclient", "-client",
@@ -322,31 +233,6 @@ public class LoadManager {
 
     //////////////////////////////////////////////////////////////////////////////////////////
 
-    private static void deleteInputServer() {
-        if(input_server_list.size()>0){
-            String name = input_server_list.get(0);
-            try {
-                InputServerInterface is = (InputServerInterface) registry.lookup(name);
-                is.stop();
-            } catch (RemoteException | NotBoundException e) {
-                e.printStackTrace();
-            }
-            input_server_list.remove(name);
-        }
-    }
-
-    private static void deleteImageHandler() {
-        if(image_handler_list.size()>0){
-            String name = image_handler_list.get(0);
-            try {
-                ImageHandlerInterface ih = (ImageHandlerInterface) registry.lookup(name);
-                ih.stop();
-            } catch (RemoteException | NotBoundException e) {
-                e.printStackTrace();
-            }
-            image_handler_list.remove(name);
-        }
-    }
 
     private static void deleteDispatcher() {
         if(dispatcher_list.size()>0){
@@ -361,12 +247,16 @@ public class LoadManager {
         }
     }
 
-    private static void closeAll(){
-        while(!input_server_list.isEmpty())
-            deleteInputServer();
+    private static void deleteAccessPoint() {
+        try {
+            registry.unbind(accesspoint_rmi_name);
+        } catch (RemoteException | NotBoundException e) {
+            e.printStackTrace();
+        }
+    }
 
-        while(!image_handler_list.isEmpty())
-            deleteImageHandler();
+    private static void closeAll(){
+        deleteAccessPoint();
 
         while(!dispatcher_list.isEmpty()){
             deleteDispatcher();

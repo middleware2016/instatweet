@@ -24,6 +24,7 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
     private Map<String, List<String>> subscriptions;
     private Map<Integer, ImageIcon> images;
     private int nextImageID;
+    private boolean stop = false;
 
     public Database(Registry registry, String rmi_name) throws RemoteException {
         super();
@@ -35,17 +36,20 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
         nextImageID = 0;
     }
 
-    public synchronized void runDatabase() throws AlreadyBoundException, RemoteException, NotBoundException, InterruptedException {
-        registry.bind(rmi_name, this);
 
-        wait();
-
-        registry.unbind(rmi_name);
+    public synchronized void stop() throws RemoteException{
+        stop = true;
+        notify();
     }
 
-    @Override
-    public synchronized void stopDatabase(){
-        notify();
+    public synchronized void start() {
+        while(!stop) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public static void main(String args[]){
@@ -62,14 +66,16 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
             } else
                 registry = LocateRegistry.getRegistry(args[1], Integer.parseInt(args[2]));
 
-            Database db = new Database(registry, args[0]);
-
-            db.runDatabase();
+            DatabaseInterface db = new Database(registry, args[0]);
+            System.out.println("Binding database");
+            registry.bind(args[0], db);
+            db.start();
+            registry.unbind(args[0]);
 
             exit(0);
 
 
-        } catch (RemoteException | AlreadyBoundException | NotBoundException | InterruptedException e){
+        } catch (RemoteException | AlreadyBoundException | NotBoundException e){
             e.printStackTrace();
             System.out.println("Exiting the database");
             exit(-1);
@@ -83,6 +89,7 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
             if(isUser(username))
                 throw new IllegalArgumentException("The username is already in the database");
             users.put(username, timeline);
+            subscriptions.put(username, new ArrayList<>());
         }
     }
 
@@ -139,7 +146,6 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
             list.add(subscriberUsername);
         }
 
-
     }
 
     @Override
@@ -152,10 +158,9 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
             list = subscriptions.get(username);
         }
 
-        if(list!=null){
-            synchronized (list){
-                list.remove(subscriberUsername);
-            }
+
+        synchronized (list){
+            list.remove(subscriberUsername);
         }
     }
 

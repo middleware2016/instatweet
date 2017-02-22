@@ -102,8 +102,7 @@ public class LoadManager {
 
             //Database creation
             logger.info("Initialize database");
-            Runtime.getRuntime().exec("java -jar " + database_jar_path + " " + database_rmi_name + " " + rmi_ip_port);
-            db = (DatabaseInterface)waitForRMIObject(database_rmi_name);
+            createDatabase();
 
             //Create first dispatcher
             logger.info("Initialize first dispatcher");
@@ -211,6 +210,15 @@ public class LoadManager {
         }
         return obj;
     }
+
+    private static void createDatabase() throws IOException {
+        ProcessBuilder pb = new ProcessBuilder(
+                "java", "-jar", database_jar_path, database_rmi_name, rmi_ip_port);
+        pb.inheritIO().start();
+        db = (DatabaseInterface)waitForRMIObject(database_rmi_name);
+
+    }
+
     private static void createAccessPoint() throws AlreadyBoundException, RemoteException, NotBoundException, InterruptedException {
         AccessPoint ap = new AccessPoint(db);
         registry.bind(accesspoint_rmi_name, ap);
@@ -275,7 +283,7 @@ public class LoadManager {
             for(Object o : list)
                 ((TimelineInterface) o).deleteTimeline();
 
-            db.stopDatabase();
+            db.stop();
 
         } catch (RemoteException e) {
             e.printStackTrace();

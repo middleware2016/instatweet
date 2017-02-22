@@ -178,11 +178,9 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInterfa
         private void informFollowers(Tweet tw) throws RemoteException {
             List<String> followers = db.getSubscribers(tw.getPublisherUsername());
 
-            if(followers!=null) {
-                for (String f : followers) {
-                    TimelineUpdateInterface tui = (TimelineUpdateInterface) db.getTimeline(f);
-                    tui.addTweet(tw);
-                }
+            for (String f : followers) {
+                TimelineUpdateInterface tui = (TimelineUpdateInterface) db.getTimeline(f);
+                tui.addTweet(tw);
             }
         }
     }

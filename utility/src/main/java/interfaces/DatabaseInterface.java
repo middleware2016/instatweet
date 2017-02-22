@@ -1,7 +1,6 @@
 package interfaces;
 
 import javax.swing.*;
-import java.awt.*;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
@@ -27,5 +26,6 @@ public interface DatabaseInterface extends Remote{
     public void removeImage(int imageID) throws RemoteException;
 
     public List<Object> getTimelinesAsList() throws RemoteException;
-    public void stopDatabase() throws RemoteException;
+    public void stop() throws RemoteException;
+    public void start() throws RemoteException;
 }

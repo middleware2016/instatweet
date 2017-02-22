@@ -86,9 +86,10 @@ public class Timeline extends UnicastRemoteObject implements TimelineInterface, 
     @Override
     public ImageIcon getFullImage(int imgID) throws RemoteException {
         ImageIcon temp = db.getImage(imgID);
-        ImageIcon img = new ImageIcon(temp.getImage(),temp.getDescription());
-
-        return img;
+        if (temp.getImage()!= null) {
+            return new ImageIcon(temp.getImage(), temp.getDescription());
+        }
+        return temp;
 
     }
 

@@ -75,7 +75,7 @@ public class Producer implements ClientInterface {
     public ImageIcon getFullImage(String user, int imgID) {
         try{
             return getTimelineForUser(user).getFullImage(imgID);
-        } catch (RemoteException e) {
+        } catch (RemoteException | NullPointerException e) {
             e.printStackTrace();
             return new ImageIcon();
         }

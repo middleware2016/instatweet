@@ -3,6 +3,7 @@ import interfaces.TimelineInterface;
 import payloads.Tweet;
 
 import javax.jms.Destination;
+import javax.swing.*;
 import java.awt.*;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -67,6 +68,16 @@ public class Producer implements ClientInterface {
             logger.fine("A subscription removal was sent.");
         } catch (RemoteException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public ImageIcon getFullImage(String user, int imgID) {
+        try{
+            return getTimelineForUser(user).getFullImage(imgID);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            return new ImageIcon();
         }
     }
 

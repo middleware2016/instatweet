@@ -173,7 +173,8 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
     @Override
     public ImageIcon getImage(int imageID) throws RemoteException {
         synchronized (images){
-            return images.get(imageID);
+            ImageIcon ii = images.get(imageID);
+            return ii != null ? ii : new ImageIcon();
         }
     }
 

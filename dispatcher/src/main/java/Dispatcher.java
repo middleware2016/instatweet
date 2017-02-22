@@ -2,6 +2,8 @@ import javax.jms.*;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.swing.*;
+import java.awt.*;
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
@@ -106,6 +108,9 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInterfa
     */
     class DispatcherListener implements MessageListener {
 
+        private static final int THUMB_HEIGHT = 100;
+        private static final int THUMB_WIDTH = 100;
+
         @Override
         public void onMessage(Message message) {
             ObjectMessage msg = (ObjectMessage)message;
@@ -122,8 +127,8 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInterfa
             logger.warning(String.format("[Dispatcher] Received tweet: %s", tw.toString()));
 
             try {
-                processImage(tw);
-                informFollowers(tw);
+                Tweet processedTw = processImage(tw);
+                informFollowers(processedTw);
             } catch (RemoteException e) {
                 logger.severe(e.toString());
             }
@@ -134,10 +139,30 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInterfa
          * @param tw the tweet to process (will be modified)
          * @throws RemoteException
          */
-        private void processImage(Tweet tw) throws RemoteException {
-            // TODO: implement
-            // Store full-size image and add id to tw
-            // Generate thumbnail and add it to tw
+        private Tweet processImage(Tweet tw) throws RemoteException {
+
+            Image fullImg = tw.getImg();
+
+            if(fullImg!=null) {
+                String text = tw.getText();
+
+                //Scaling
+                Image thumb = fullImg.getScaledInstance(THUMB_WIDTH, THUMB_HEIGHT, Image.SCALE_DEFAULT);
+
+                //Database insert
+                int fullImgID = db.addImage(new ImageIcon(fullImg, text));
+
+                //Create new tw
+                Tweet newTw = new Tweet(tw.getPublisherUsername(),
+                                        text,
+                                        thumb,
+                                        fullImgID);
+
+                return newTw;
+            }
+
+            return tw;
+
         }
 
         /**

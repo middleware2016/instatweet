@@ -20,8 +20,7 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface{
 
     private Registry registry;
     private String rmi_name;
-    private List<String> users;
-    private Map<String, Object> timelines;
+    private Map<String, Object> users;
     private Map<String, List<String>> subscriptions;
     private Map<Integer, ImageIcon> images;
     private int nextImageID;
@@ -29,8 +28,7 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface{
     public Database(Registry registry, String rmi_name) throws RemoteException {
         this.registry=registry;
         this.rmi_name=rmi_name;
-        users = new ArrayList<>();
-        timelines = new HashMap<>();
+        users = new HashMap<>();
         subscriptions = new HashMap<>();
         images = new HashMap<>();
         nextImageID = 0;
@@ -79,40 +77,30 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface{
     }
 
     @Override
-    public void addUser(String username) throws RemoteException, IllegalArgumentException {
+    public void addUser(String username, Object timeline) throws RemoteException, IllegalArgumentException {
         synchronized (users){
-            if(users.contains(username))
+            if(isUser(username))
                 throw new IllegalArgumentException("The username is already in the database");
-            users.add(username);
+            users.put(username, timeline);
         }
     }
 
     @Override
-    public void removeUser(String username) throws RemoteException {
+    public Object removeUser(String username) throws RemoteException {
         synchronized (users){
-            users.remove(username);
+            return users.remove(username);
         }
     }
 
     @Override
     public boolean isUser(String username) throws RemoteException {
-        return users.contains(username);
+        return users.containsKey(username);
     }
 
-
-    @Override
-    public void addTimeline(String username, Object timeline) throws RemoteException {
-        timelines.put(username,timeline);
-    }
-
-    @Override
-    public void removeTimeline(String username) throws RemoteException {
-        timelines.remove(username);
-    }
 
     @Override
     public Object getTimeline(String username) throws RemoteException {
-        return timelines.get(username);
+        return users.get(username);
     }
 
     @Override
@@ -194,7 +182,7 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface{
 
     @Override
     public List<Object> getTimelinesAsList() throws RemoteException {
-        Collection<Object> coll = timelines.values();
+        Collection<Object> coll = users.values();
         List<Object> list = new ArrayList<>();
 
         for(Object o : coll)

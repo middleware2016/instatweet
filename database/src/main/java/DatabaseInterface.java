@@ -11,12 +11,9 @@ import java.util.List;
  */
 public interface DatabaseInterface extends Remote{
 
-    public void addUser(String name) throws RemoteException, IllegalArgumentException;
-    public void removeUser(String username) throws RemoteException;
+    public void addUser(String username, Object timeline) throws RemoteException, IllegalArgumentException;
     public boolean isUser(String username) throws RemoteException;
-
-    public void addTimeline(String username, Object timeline) throws RemoteException;
-    public void removeTimeline(String username) throws RemoteException;
+    public Object removeUser(String username) throws RemoteException;
     public Object getTimeline(String username) throws RemoteException;
 
     public List<String> getSubscribers(String username) throws RemoteException;

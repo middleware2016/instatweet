@@ -57,6 +57,9 @@ public class LoadManager {
     private static int maxMessPerElem = 50;
     private static int minMessPerElem = 5;
 
+    //Database object
+    private static DatabaseInterface db;
+
     private static Logger logger = Logger.getLogger(LoadManager.class.getName());
 
 
@@ -100,6 +103,7 @@ public class LoadManager {
             //Database creation
             logger.info("Initialize database");
             Runtime.getRuntime().exec("java -jar " + database_jar_path + " " + database_rmi_name + " " + rmi_ip_port);
+            db = (DatabaseInterface)waitForRMIObject(database_rmi_name);
 
             //Create first dispatcher
             logger.info("Initialize first dispatcher");
@@ -208,7 +212,6 @@ public class LoadManager {
         return obj;
     }
     private static void createAccessPoint() throws AlreadyBoundException, RemoteException, NotBoundException, InterruptedException {
-        DatabaseInterface db = (DatabaseInterface)waitForRMIObject(database_rmi_name);
         AccessPoint ap = new AccessPoint(db);
         registry.bind(accesspoint_rmi_name, ap);
     }
@@ -267,7 +270,6 @@ public class LoadManager {
         }
 
         try {
-            DatabaseInterface db = (DatabaseInterface) registry.lookup(database_rmi_name);
             List<Object> list = db.getTimelinesAsList();
 
             for(Object o : list)
@@ -275,7 +277,7 @@ public class LoadManager {
 
             db.stopDatabase();
 
-        } catch (RemoteException | NotBoundException e) {
+        } catch (RemoteException e) {
             e.printStackTrace();
         }
     }

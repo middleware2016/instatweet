@@ -77,7 +77,7 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInterfa
         try {
             Registry registry;
             if(args.length < 5) {
-                System.out.println("Using default rmi ip and port");
+                logger.fine("Using default rmi ip and port");
                 registry = LocateRegistry.getRegistry();
             } else
                 registry = LocateRegistry.getRegistry(args[4], Integer.parseInt(args[5]));
@@ -96,13 +96,11 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInterfa
             disp.start();
 
             registry.unbind(args[2]);
-            System.out.println("Dispatcher " + args[2] + " unbound");
+            logger.fine("Dispatcher " + args[2] + " unbound");
             exit(0);
 
-
         } catch (RemoteException | AlreadyBoundException | NotBoundException | NamingException e){
-            e.printStackTrace();
-            System.out.println("Exiting the dispatcher " + args[2]);
+            logger.severe("Exiting the dispatcher " + args[2] + " : " + e.toString());
             exit(-1);
         }
 
@@ -129,7 +127,7 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInterfa
         }
 
         private void handleTweet(Tweet tw) {
-            logger.warning(String.format("[Dispatcher] Received tweet: %s", tw.toString()));
+            logger.info(String.format("[Dispatcher] Received tweet: %s", tw.toString()));
 
             try {
                 Tweet processedTw = processImage(tw);

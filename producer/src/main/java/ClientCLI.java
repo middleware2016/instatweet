@@ -26,21 +26,21 @@ public class ClientCLI {
     @Command(description="Subscribe to an user")
     public String subscribe(
         @Param(name="user", description="Username of the subscriber")
-                String subscriber,
-        @Param(name="text", description="Username of the user to subscribe to")
-                String user) {
-        producer.subscribe(subscriber, user);
-        return subscriber + " subscribed to " + user;
+                String follower,
+        @Param(name="toFollow", description="Username of the user to subscribe to")
+                String toFollow) {
+        producer.subscribe(follower, toFollow);
+        return follower + " subscribed to " + toFollow;
     }
 
     @Command(description="Unsubscribe from an user")
     public String unsubscribe(
             @Param(name="user", description="Username of the subscriber")
                     String subscriber,
-            @Param(name="text", description="Username of the user to unsubscribe from")
-                    String user) {
-        producer.unsubscribe(subscriber, user);
-        return subscriber + " unsubscribed from " + user;
+            @Param(name="toUnfollow", description="Username of the user to unsubscribe from")
+                    String toUnfollow) {
+        producer.unsubscribe(subscriber, toUnfollow);
+        return subscriber + " unsubscribed from " + toUnfollow;
     }
 
     @Command(description="Post a new tweet")
@@ -53,10 +53,10 @@ public class ClientCLI {
         return "Tweet sent!";
     }
 
-    @Command(description="Display the list of tweets")
-    public String read(String user) {
+    @Command(description="Display a certain number of tweets for the specified user")
+    public String read(String user, int quantity) {
         String out = "";
-        List<Tweet> tweets = producer.getTimeline(user);
+        List<Tweet> tweets = producer.getLastTweets(user, quantity);
         out += String.format("%d new tweets:\n", tweets.size());
         for(Tweet t: tweets) {
             out += t.toString() + "\n";

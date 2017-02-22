@@ -19,6 +19,7 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 
 import static java.lang.System.exit;
 
@@ -38,6 +39,8 @@ public class Timeline extends UnicastRemoteObject implements TimelineInterface, 
     private JMSContext context;
     private Destination dispatchDestination;
     private JMSProducer tweetProducer;
+
+    private static Logger logger = Logger.getLogger(Timeline.class.getName());
 
     public Timeline(Registry registry, String username, DatabaseInterface db, JMSContext context, Destination dispatchDest) throws RemoteException {
         super();
@@ -74,15 +77,10 @@ public class Timeline extends UnicastRemoteObject implements TimelineInterface, 
     }
 
     @Override
-    public synchronized List<Tweet> getFrom(int ind, int quantity) throws RemoteException {
-
-        List<Tweet> list = new ArrayList<>();
-
-        for(int i = ind-quantity; i<=ind && i< timeline.size(); i++){
-            list.add(i, new Tweet(timeline.get(i)));
-        }
-
-        return list;
+    public synchronized List<Tweet> getLastTweets(int quantity) throws RemoteException {
+        if(quantity > timeline.size())
+            quantity = timeline.size();
+        return new ArrayList<>(timeline.subList(timeline.size()-quantity, timeline.size()));
     }
 
     @Override
@@ -100,13 +98,13 @@ public class Timeline extends UnicastRemoteObject implements TimelineInterface, 
     }
 
     @Override
-    public void subscribeTo(String userToFollow) throws RemoteException {
-        db.addSubscriber(this.username, userToFollow);
+    public void addSubscriber(String subscriber) throws RemoteException {
+        db.addSubscriber(this.username, subscriber);
     }
 
     @Override
-    public void unsubscribeFrom(String userToUnfollow) throws RemoteException {
-        db.removeSubscriber(this.username, userToUnfollow);
+    public void removeSubscriber(String subscriber) throws RemoteException {
+        db.removeSubscriber(this.username, subscriber);
     }
 
     public static void main(String args[]){
@@ -119,7 +117,7 @@ public class Timeline extends UnicastRemoteObject implements TimelineInterface, 
         try {
             Registry registry;
             if(args.length < 5) {
-                System.out.println("Using default rmi ip and port");
+                logger.fine("Using default rmi ip and port");
                 registry = LocateRegistry.getRegistry();
             } else
                 registry = LocateRegistry.getRegistry(args[4], Integer.parseInt(args[5]));
@@ -136,14 +134,12 @@ public class Timeline extends UnicastRemoteObject implements TimelineInterface, 
 
             timeline.runTimeline();
 
-            System.out.println("Timeline " + args[1] + " unbound");
+            logger.fine("Timeline " + args[1] + " unbound");
 
             exit(0);
 
-
         } catch (RemoteException | AlreadyBoundException | NotBoundException | InterruptedException | NamingException e){
-            e.printStackTrace();
-            System.out.println("Exiting the timeline " + args[1]);
+            logger.severe("Exiting the timeline " + args[1] + ": " + e.toString());
             exit(-1);
         }
 

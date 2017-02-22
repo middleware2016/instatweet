@@ -8,6 +8,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
+import java.util.logging.Logger;
 
 import static java.lang.System.exit;
 
@@ -25,6 +26,8 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
     private Map<Integer, ImageIcon> images;
     private int nextImageID;
     private boolean stop = false;
+
+    private static Logger logger = Logger.getLogger(Database.class.getName());
 
     public Database(Registry registry, String rmi_name) throws RemoteException {
         super();
@@ -61,13 +64,13 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
         try {
             Registry registry;
             if(args.length < 3) {
-                System.out.println("Using default rmi ip and port");
+                logger.fine("Using default rmi ip and port");
                 registry = LocateRegistry.getRegistry();
             } else
                 registry = LocateRegistry.getRegistry(args[1], Integer.parseInt(args[2]));
 
             DatabaseInterface db = new Database(registry, args[0]);
-            System.out.println("Binding database");
+            logger.fine("Binding database");
             registry.bind(args[0], db);
             db.start();
             registry.unbind(args[0]);
@@ -77,7 +80,7 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
 
         } catch (RemoteException | AlreadyBoundException | NotBoundException e){
             e.printStackTrace();
-            System.out.println("Exiting the database");
+            logger.severe("Exiting the database: " + e.toString());
             exit(-1);
         }
 
@@ -136,10 +139,6 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
         synchronized (subscriptions) {
             //Map.get returns null if the key is not present
             list = subscriptions.get(username);
-            if(list == null){
-                list = new ArrayList<>();
-                subscriptions.put(username, list);
-            }
         }
 
         synchronized (list) {
@@ -157,7 +156,6 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
             //Map.get returns null if the key is not present
             list = subscriptions.get(username);
         }
-
 
         synchronized (list){
             list.remove(subscriberUsername);

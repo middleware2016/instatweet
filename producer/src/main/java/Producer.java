@@ -43,17 +43,17 @@ public class Producer implements ClientInterface {
         Tweet t = new Tweet(user, text, image);
         try {
             getTimelineForUser(user).postTweet(t);
-            logger.info("Sent a tweet: " + t.toString());
+            logger.fine("Sent a tweet: " + t.toString());
         } catch (RemoteException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public void subscribe(String subscriber, String user) {
+    public void subscribe(String subscriber, String toFollow) {
         try {
-            getTimelineForUser(subscriber).subscribeTo(user);
-            logger.info("A subscription was sent.");
+            getTimelineForUser(toFollow).addSubscriber(subscriber);
+            logger.fine("A subscription was sent.");
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -61,19 +61,21 @@ public class Producer implements ClientInterface {
     }
 
     @Override
-    public void unsubscribe(String subscriber, String user) {
+    public void unsubscribe(String subscriber, String toUnfollow) {
         try {
-            getTimelineForUser(subscriber).unsubscribeFrom(user);
-            logger.info("A subscription removal was sent.");
+            getTimelineForUser(toUnfollow).removeSubscriber(subscriber);
+            logger.fine("A subscription removal was sent.");
         } catch (RemoteException e) {
             e.printStackTrace();
         }
     }
 
     @Override
-    public List<Tweet> getTimeline(String user) {
+    public List<Tweet> getLastTweets(String user, int quantity) {
+        if(quantity < 0)
+            throw new IllegalArgumentException("The number of requested tweets cannot be negative.");
         try {
-            return getTimelineForUser(user).getFrom(0, 100);
+            return getTimelineForUser(user).getLastTweets(quantity);
         } catch (RemoteException e) {
             e.printStackTrace();
             return new ArrayList<>();

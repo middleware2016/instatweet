@@ -83,7 +83,7 @@ public class LoadManager {
         try {
             //Initialize RMI
             if (args.length < 6) {
-                System.out.println("Using default rmi ip and port");
+                logger.fine("Using default rmi ip and port");
                 registry = LocateRegistry.getRegistry();
                 rmi_ip_port = "";
             } else {
@@ -126,8 +126,7 @@ public class LoadManager {
 
 
         } catch (IOException | NamingException | JMSException | AlreadyBoundException | NotBoundException | InterruptedException e) {
-            e.printStackTrace();
-            logger.info("Exiting LoadManager");
+            logger.severe("Exiting LoadManager: " + e.toString());
             exit(-1);
         }
 
@@ -169,7 +168,7 @@ public class LoadManager {
             LoadManager.scalingAnalysis();
         }
 
-        logger.info("Closing everything...");
+        logger.fine("Ending LoadManager loop.");
     }
 
     ////////////////////////////////////////////////////////////////////////

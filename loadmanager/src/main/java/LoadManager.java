@@ -258,7 +258,7 @@ public class LoadManager {
         ProcessBuilder pb =
                 new ProcessBuilder("appclient", "-client",
                         dispatcher_jar_path, connection_factory_name, dispatch_destination_name,
-                        name, rmi_ip_port);
+                        name, database_rmi_name, rmi_ip_port);
         pb.inheritIO().start();
 
         dispatcher_list.add(name);

@@ -141,28 +141,12 @@ public class InputServer extends UnicastRemoteObject implements InputServerInter
             Object obj;
             try {
                 obj = msg.getObject();
-                if(obj.getClass().getName().equals("Tweet")) {
-                    handleTweet((Tweet) obj);
-                } else if (obj.getClass().getName().equals("NewFollower")) {
-                    handleFollowingRequest((NewFollower) obj);
-                }
+                logger.warning(String.format("[InputServer] Received message %s", obj.toString()));
             } catch(JMSException e) {
                 e.printStackTrace();
             }
 
         }
 
-        private void handleTweet(Tweet tw) {
-            logger.info(String.format("[InputServer] Tweet @%s: '%s'", tw.getPublisherUsername(), tw.getText()));
-            // TODO: Here the tweet should be modified
-            // Image handling missing
-            dispatch.send(dispatchDest, tw);
-        }
-
-        private void handleFollowingRequest(NewFollower nf) {
-            String action = (nf.isRemove() ? "unfollows" : "follows");
-            logger.info(String.format("[InputServer] @%s %s @%s", nf.getUsername(), action, nf.getToBeFollowedUsername()));
-            dispatch.send(dispatchDest, nf);
-        }
     }
 }

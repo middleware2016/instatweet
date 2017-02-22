@@ -159,48 +159,6 @@ project(':imagehandler') {
     }
 }
 
-
-////////////////////////////////////////////////////////////////
-//Dispatcher server
-project(':dispatcher') {
-    apply plugin: 'application'
-
-    mainClassName = 'Dispatcher'
-
-    apply plugin: 'java'
-    apply plugin: 'war'
-
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-        testCompile group: 'junit', name: 'junit', version: '4.11'
-        providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
-        runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
-        compile project(':utility')
-    }
-
-    jar {
-        archiveName = "dispatcher.jar"
-
-        from {
-            (configurations.runtime).collect {
-                it.isDirectory() ? it : zipTree(it)
-            }
-        }
-
-        manifest {
-            attributes(
-                    "Implementation-Timestamp": new Date(),
-                    "Class-Path": configurations.compile.collect { it.getName() }.join(' '),
-                    'Main-Class' : 'Dispatcher')
-        }
-    }
-}
-
-
-
 ////////////////////////////////////////////////////////////////
 //Timeline
 project(':timeline') {
@@ -242,6 +200,47 @@ project(':timeline') {
 }
 
 ////////////////////////////////////////////////////////////////
+//Dispatcher server
+project(':dispatcher') {
+    apply plugin: 'application'
+
+    mainClassName = 'Dispatcher'
+
+    apply plugin: 'java'
+    apply plugin: 'war'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: '4.11'
+        providedCompile group: 'javax', name: 'javaee-api', version:'7.0'
+        runtime "org.apache.geronimo.specs:geronimo-jms_1.1_spec:1.0"
+        compile project(':utility')
+        compile project(':database')
+        compile project(':timeline')
+    }
+
+    jar {
+        archiveName = "dispatcher.jar"
+
+        from {
+            (configurations.runtime).collect {
+                it.isDirectory() ? it : zipTree(it)
+            }
+        }
+
+        manifest {
+            attributes(
+                    "Implementation-Timestamp": new Date(),
+                    "Class-Path": configurations.compile.collect { it.getName() }.join(' '),
+                    'Main-Class' : 'Dispatcher')
+        }
+    }
+}
+
+////////////////////////////////////////////////////////////////
 //Load manager
 project(':loadmanager') {
     apply plugin: 'application'
@@ -263,9 +262,8 @@ project(':loadmanager') {
         compile project(':database')
         compile project(':inputserver')
         compile project(':imagehandler')
-        compile project(':dispatcher')
         compile project(':timeline')
-
+        compile project(':dispatcher')
     }
 
     jar {

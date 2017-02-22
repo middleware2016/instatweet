@@ -16,6 +16,8 @@ public interface TimelineInterface extends Remote {
     public List<Tweet> getFrom(int ind, int quantity) throws RemoteException;
     public ImageIcon getFullImage(int imgID) throws RemoteException;
 
-    public void addTweet(Tweet t) throws RemoteException;
+    public void postTweet(Tweet t) throws RemoteException;
+    public void subscribeTo(String userToFollow) throws RemoteException;
+    public void unsubscribeFrom(String userToUnfollow) throws RemoteException;
 
 }

@@ -1,3 +1,8 @@
+import interfaces.DatabaseInterface;
+import interfaces.DispatcherInterface;
+import interfaces.TimelineUpdateInterface;
+import payloads.Tweet;
+
 import javax.jms.*;
 import javax.naming.Context;
 import javax.naming.InitialContext;

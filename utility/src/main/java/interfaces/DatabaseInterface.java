@@ -1,3 +1,5 @@
+package interfaces;
+
 import javax.swing.*;
 import java.awt.*;
 import java.rmi.Remote;

@@ -3,5 +3,5 @@
 gradle build
 
 mkdir -p rmicodebase
-cp {database,dispatcher,timeline,loadmanager}/build/classes/main/*Interface.class utility/build/classes/main/Tweet.class rmicodebase
+cp utility/build/classes/main/interfaces/*Interface.class utility/build/classes/main/payloads/Tweet.class rmicodebase
 

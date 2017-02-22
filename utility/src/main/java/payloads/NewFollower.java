@@ -1,3 +1,5 @@
+package payloads;
+
 import java.io.Serializable;
 
 /**

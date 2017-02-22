@@ -1,3 +1,7 @@
+import interfaces.AccessPointInterface;
+import interfaces.TimelineInterface;
+import payloads.Tweet;
+
 import javax.jms.Destination;
 import java.awt.*;
 import java.rmi.NotBoundException;

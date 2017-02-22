@@ -1,3 +1,5 @@
+import interfaces.DatabaseInterface;
+
 import javax.swing.*;
 import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
@@ -14,7 +16,7 @@ import static java.lang.System.exit;
  *
  * @author Alex Delbono
  */
-public class Database extends UnicastRemoteObject implements DatabaseInterface{
+public class Database extends UnicastRemoteObject implements DatabaseInterface {
 
     private Registry registry;
     private String rmi_name;

@@ -1,3 +1,7 @@
+package interfaces;
+
+import interfaces.TimelineInterface;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 

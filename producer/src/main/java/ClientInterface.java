@@ -1,3 +1,5 @@
+import payloads.Tweet;
+
 import java.awt.*;
 import java.util.List;
 

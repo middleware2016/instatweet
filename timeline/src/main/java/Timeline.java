@@ -1,3 +1,8 @@
+import interfaces.DatabaseInterface;
+import interfaces.TimelineInterface;
+import interfaces.TimelineUpdateInterface;
+import payloads.Tweet;
+
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSContext;

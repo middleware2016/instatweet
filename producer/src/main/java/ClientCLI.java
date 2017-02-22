@@ -1,6 +1,7 @@
 import asg.cliche.Command;
 import asg.cliche.Param;
 import asg.cliche.ShellFactory;
+import payloads.Tweet;
 
 import java.awt.image.BufferedImage;
 import java.io.IOException;

@@ -1,3 +1,8 @@
+package interfaces;
+
+
+import payloads.Tweet;
+
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 

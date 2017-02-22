@@ -1,57 +1,78 @@
 import javax.jms.Destination;
-import javax.jms.JMSContext;
-import javax.jms.JMSProducer;
-import javax.management.openmbean.KeyAlreadyExistsException;
 import java.awt.*;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
+import java.rmi.registry.Registry;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 public class Producer implements ClientInterface {
-    private JMSContext context;
     private Destination inputDestination;
-    private JMSProducer producer;
+    private Registry registry;
+    private AccessPointInterface api;
 
     private static Logger logger = Logger.getLogger(Producer.class.getName());
 
-    public Producer(JMSContext context, Destination inputDest) {
-        this.context = context;
-        this.inputDestination = inputDest;
+    public Producer(Registry registry, String apiName) {
+        this.registry = registry;
 
-        this.producer = context.createProducer();
+        try {
+            this.api = (AccessPointInterface)registry.lookup(apiName);
+        } catch (RemoteException | NotBoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private TimelineInterface getTimelineForUser(String user) {
+        TimelineInterface ti = null;
+        try {
+            ti = api.getTimeline(user);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+        return ti;
     }
 
     @Override
     public void tweet(String user, String text, Image image) {
         Tweet t = new Tweet(user, text, image);
-        this.producer.send(inputDestination, t);
-        logger.info("Sent a tweet: " + t.toString());
+        try {
+            getTimelineForUser(user).postTweet(t);
+            logger.info("Sent a tweet: " + t.toString());
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void subscribe(String subscriber, String user) {
-        NewFollower nf = new NewFollower(subscriber, user, false);
-        this.producer.send(inputDestination, nf);
-        logger.info("A subscription was sent.");
+        try {
+            getTimelineForUser(subscriber).subscribeTo(user);
+            logger.info("A subscription was sent.");
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
     public void unsubscribe(String subscriber, String user) {
-        NewFollower nf = new NewFollower(subscriber, user, true);
-        this.producer.send(inputDestination, nf);
-        logger.info("A subscription removal was sent.");
+        try {
+            getTimelineForUser(subscriber).unsubscribeFrom(user);
+            logger.info("A subscription removal was sent.");
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
-    public void newUser(String name) throws KeyAlreadyExistsException {
-        // TODO: implement, throw exception if the user already exists.
-        NewUser nu = new NewUser(name);
-        this.producer.send(inputDestination, nu);
-        logger.info(String.format("(Not implemented) User @%s should be created.", name));
-    }
-
-    @Override
-    public List<Tweet> getTimeline() {
-        return new ArrayList<>();
+    public List<Tweet> getTimeline(String user) {
+        try {
+            return getTimelineForUser(user).getFrom(0, 100);
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 }

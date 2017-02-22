@@ -3,6 +3,7 @@ import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import java.io.IOException;
+import java.rmi.AlreadyBoundException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 import static java.lang.System.exit;
 
@@ -61,6 +63,8 @@ public class LoadManager {
     private static int maxMessPerElem = 50;
     private static int minMessPerElem = 5;
 
+    private static Logger logger = Logger.getLogger(LoadManager.class.getName());
+
 
     public static void main(String args[]) {
         if (args.length < 9) {
@@ -109,36 +113,40 @@ public class LoadManager {
 
 
             //Database creation
-            System.out.println("Initialize database");
+            logger.info("Initialize database");
             Runtime.getRuntime().exec("java -jar " + database_jar_path + " " + database_rmi_name + " " + rmi_ip_port);
 
             //Create first input server
-            System.out.println("Initialize first input server");
+            logger.info("Initialize first input server");
             createInputServer();
 
             //Create first image handler
-            System.out.println("Initialize first image handler");
+            logger.info("Initialize first image handler");
             createImageHandler();
 
             //Create first dispatcher
-            System.out.println("Initialize first dispatcher");
+            logger.info("Initialize first dispatcher");
             createDispatcher();
 
-            System.out.println("Everything initialized");
+            // Create AccessPoint
+            logger.info("Initialize AccessPoint");
+            createAccessPoint();
+
+            logger.info("Everything initialized");
 
             //Loop until administrator wants to quit
             loadManagerLoop();
 
             closeAll();
 
-            System.out.println("Everything closed");
+            logger.info("Everything closed");
 
             exit(0);
 
 
-        } catch (IOException | NamingException | JMSException e) {
+        } catch (IOException | NamingException | JMSException | AlreadyBoundException | NotBoundException e) {
             e.printStackTrace();
-            System.out.println("Exiting LoadManager");
+            logger.info("Exiting LoadManager");
             exit(-1);
         }
 
@@ -180,7 +188,7 @@ public class LoadManager {
             LoadManager.scalingAnalysis();
         }
 
-        System.out.println("Closing everything...");
+        logger.info("Closing everything...");
     }
 
     ////////////////////////////////////////////////////////////////////////
@@ -237,6 +245,12 @@ public class LoadManager {
 
     ////////////////////////////////////////////////////////////////////////////////
 
+    private static void createAccessPoint() throws AlreadyBoundException, RemoteException, NotBoundException {
+        DatabaseInterface db = (DatabaseInterface) registry.lookup(database_rmi_name);
+        AccessPoint ap = new AccessPoint(db);
+        registry.bind("instatweet_accesspoint", ap);
+    }
+
     private static void createInputServer() throws IOException {
 
         String name = input_server_rmi_name + "_" + input_server_counter;
@@ -278,6 +292,14 @@ public class LoadManager {
         image_handler_list.add(name);
 
         image_handler_counter++;
+    }
+
+    static void createTimeline(String user) throws IOException {
+        ProcessBuilder pb =
+                new ProcessBuilder("appclient", "-client",
+                        timeline_jar_path, user, database_rmi_name, connection_factory_name,
+                        dispatch_destination_name, rmi_ip_port);
+        pb.inheritIO().start();
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

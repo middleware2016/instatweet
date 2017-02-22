@@ -45,6 +45,12 @@ public class Timeline extends UnicastRemoteObject implements TimelineInterface, 
 
         this.tweetProducer = context.createProducer();
 
+        db.addUser(username, this);
+        try {
+            registry.bind("instatweet_timeline" + this.username, this);
+        } catch (AlreadyBoundException e) {
+            e.printStackTrace();
+        }
     }
 
     public synchronized void runTimeline() throws AlreadyBoundException, RemoteException, NotBoundException, InterruptedException {

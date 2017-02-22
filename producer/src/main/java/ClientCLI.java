@@ -2,15 +2,10 @@ import asg.cliche.Command;
 import asg.cliche.Param;
 import asg.cliche.ShellFactory;
 
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import javax.jms.JMSContext;
-import javax.management.openmbean.KeyAlreadyExistsException;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
 import java.util.List;
 
 import static java.awt.image.BufferedImage.TYPE_INT_RGB;
@@ -58,24 +53,14 @@ public class ClientCLI {
     }
 
     @Command(description="Display the list of tweets")
-    public String read() {
+    public String read(String user) {
         String out = "";
-        List<Tweet> tweets = producer.getTimeline();
+        List<Tweet> tweets = producer.getTimeline(user);
         out += String.format("%d new tweets:\n", tweets.size());
         for(Tweet t: tweets) {
             out += t.toString() + "\n";
         }
         return out;
-    }
-
-    @Command(description="Create a new user with the given name", name="new_user", abbrev="n")
-    public String newUser(String name) {
-        try {
-            producer.newUser(name);
-            return "User created.";
-        } catch(KeyAlreadyExistsException e) {
-            return String.format("User @%s already exists!", name);
-        }
     }
 
     public void runShell() throws IOException {
@@ -84,26 +69,19 @@ public class ClientCLI {
     }
 
     public static void main(String args[]){
-        if(args.length<3) {
-            System.out.println("Producer arguments: connection-factory-name input-queue-name " +
-                    " timeline-jar-path");
+        if(args.length<1) {
+            System.out.println("Producer arguments: api_rmi_name");
             return;
         }
 
         try {
-            Context jndiContext = new InitialContext();
-
-            ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext.lookup(args[0]);
-            Destination inputDest = (Destination) jndiContext.lookup(args[1]);
-            JMSContext context = connectionFactory.createContext();
-
             // Construction of the object and binding
-            ClientInterface producer = new Producer(context, inputDest);
+            Registry reg = LocateRegistry.getRegistry();
+            ClientInterface producer = new Producer(reg, args[1]);
             ClientCLI cli = new ClientCLI(producer);
             cli.runShell();
 
-
-        } catch (NamingException | IOException e){
+        } catch (IOException e){
             e.printStackTrace();
             exit(-1);
         }

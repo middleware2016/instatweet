@@ -1,3 +1,4 @@
+import configurator.Configurator;
 import interfaces.DatabaseInterface;
 import interfaces.DispatcherInterface;
 import interfaces.TimelineUpdateInterface;
@@ -68,39 +69,43 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInterfa
 
 
     public static void main(String args[]){
-        if(args.length<3) {
-            System.out.println("Dispatcher arguments: connection-factory-name tweet-queue-name dispatcher-rmi-name database-rmi-name " +
-                                "[rmi-registry-ip  rmi-registry-port]");
+        Configurator config = Configurator.getInstance();
+        if(args.length < 1) {
+            System.out.println("Dispatcher arguments: dispatcher-rmi-name");
             return;
         }
-
+        // Each dispatcher should have an unique RMI name.
+        String dispatcher_rmi_name = args[0];
         try {
+
             Registry registry;
-            if(args.length < 5) {
+            //Initialize RMI
+            if (config.get("rmi_ip") == null) {
                 logger.fine("Using default rmi ip and port");
                 registry = LocateRegistry.getRegistry();
-            } else
-                registry = LocateRegistry.getRegistry(args[4], Integer.parseInt(args[5]));
+            } else {
+                registry = LocateRegistry.getRegistry(config.get("rmi_ip"), Integer.parseInt(config.get("rmi_port")));
+            }
 
-            DatabaseInterface db = (DatabaseInterface) registry.lookup(args[3]);
+            DatabaseInterface db = (DatabaseInterface) registry.lookup(config.get("database_rmi_name"));
 
             Context jndiContext = new InitialContext();
-            ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext.lookup(args[0]);
-            Destination dest = (Destination) jndiContext.lookup(args[1]);
+            ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext.lookup(config.get("connection_factory_name"));
+            Destination dest = (Destination) jndiContext.lookup(config.get("dispatch_queue_name"));
             JMSContext context = connectionFactory.createContext();
 
             // Construction and binding
             Dispatcher disp = new Dispatcher(context, dest, registry, db);
-            registry.bind(args[2], disp);
+            registry.bind(dispatcher_rmi_name, disp);
 
             disp.start();
 
-            registry.unbind(args[2]);
-            logger.fine("Dispatcher " + args[2] + " unbound");
+            registry.unbind(dispatcher_rmi_name);
+            logger.fine("Dispatcher " + dispatcher_rmi_name + " unbound");
             exit(0);
 
         } catch (RemoteException | AlreadyBoundException | NotBoundException | NamingException e){
-            logger.severe("Exiting the dispatcher " + args[2] + " : " + e.toString());
+            logger.severe("Exiting the dispatcher " + dispatcher_rmi_name + " : " + e.toString());
             exit(-1);
         }
 

@@ -1,3 +1,4 @@
+import configurator.Configurator;
 import interfaces.DatabaseInterface;
 import interfaces.DispatcherInterface;
 import interfaces.TimelineInterface;
@@ -27,11 +28,10 @@ import static java.lang.Thread.sleep;
  * @author Alex Delbono
  */
 public class LoadManager {
-
-    public static final String accesspoint_rmi_name = "instatweet_accesspoint";
     //JMS names
     private static String connection_factory_name;
     private static String dispatch_destination_name;
+    private static String accesspoint_rmi_name;
 
     //Jar paths
     private static String timeline_jar_path;
@@ -43,8 +43,8 @@ public class LoadManager {
     private static Registry registry;
 
     //Bases of the class names
-    private static String database_rmi_name = "instatweet_database";
-    private static String dispatcher_rmi_name = "instatweet_dispatcher";
+    private static String database_rmi_name;
+    private static String dispatcher_rmi_name;
 
     //Containers for classes
     private static List<String> dispatcher_list = new ArrayList<>();
@@ -64,31 +64,30 @@ public class LoadManager {
 
 
     public static void main(String args[]) {
-        if (args.length < 5) {
-            System.out.println("LoadManager arguments: connection-factory-name  " +
-                    "dispatch-destination-name timeline-jar-path" +
-                    "database-jar-path dispatcher-jar-path " +
-                    "[rmi-registry-ip  rmi-registry-port]");
-            return;
-        }
 
-        connection_factory_name = args[0];
-        dispatch_destination_name = args[1];
+        Configurator config = Configurator.getInstance();
 
-        timeline_jar_path = args[2];
-        database_jar_path = args[3];
-        dispatcher_jar_path = args[4];
+        connection_factory_name = config.get("connection_factory_name");
+        dispatch_destination_name = config.get("dispatch_queue_name");
+
+        timeline_jar_path = config.get("timeline_jar_path");
+        database_jar_path = config.get("database_jar_path");
+        dispatcher_jar_path = config.get("dispatcher_jar_path");
+
+        database_rmi_name = config.get("database_rmi_name");
+        dispatcher_rmi_name = config.get("dispatcher_rmi_name");
+        accesspoint_rmi_name = config.get("accesspoint_rmi_name");
 
 
         try {
             //Initialize RMI
-            if (args.length < 6) {
+            if (config.get("rmi_ip") == null) {
                 logger.fine("Using default rmi ip and port");
                 registry = LocateRegistry.getRegistry();
                 rmi_ip_port = "";
             } else {
-                registry = LocateRegistry.getRegistry(args[5], Integer.parseInt(args[6]));
-                rmi_ip_port = args[5] + " " + args[6];
+                registry = LocateRegistry.getRegistry(config.get("rmi_ip"), Integer.parseInt(config.get("rmi_port")));
+                rmi_ip_port = config.get("rmi_ip") + " " + config.get("rmi_port");
             }
 
             //JMS initialization
@@ -211,8 +210,7 @@ public class LoadManager {
     }
 
     private static void createDatabase() throws IOException {
-        ProcessBuilder pb = new ProcessBuilder(
-                "java", "-jar", database_jar_path, database_rmi_name, rmi_ip_port);
+        ProcessBuilder pb = new ProcessBuilder("java", "-jar", database_jar_path);
         pb.inheritIO().start();
         db = (DatabaseInterface)waitForRMIObject(database_rmi_name);
 
@@ -226,10 +224,7 @@ public class LoadManager {
     private static void createDispatcher() throws IOException {
         String name = dispatcher_rmi_name + "_" + dispatcher_counter;
 
-        ProcessBuilder pb =
-                new ProcessBuilder("appclient", "-client",
-                        dispatcher_jar_path, connection_factory_name, dispatch_destination_name,
-                        name, database_rmi_name, rmi_ip_port);
+        ProcessBuilder pb = new ProcessBuilder("appclient", "-client", dispatcher_jar_path, name);
         pb.inheritIO().start();
 
         dispatcher_list.add(name);
@@ -238,10 +233,7 @@ public class LoadManager {
     }
 
     static void createTimeline(String user) throws IOException {
-        ProcessBuilder pb =
-                new ProcessBuilder("appclient", "-client",
-                        timeline_jar_path, user, database_rmi_name, connection_factory_name,
-                        dispatch_destination_name, rmi_ip_port);
+        ProcessBuilder pb = new ProcessBuilder("appclient", "-client", timeline_jar_path, user);
         pb.inheritIO().start();
     }
 

@@ -1,3 +1,4 @@
+import configurator.Configurator;
 import interfaces.DatabaseInterface;
 
 import javax.swing.*;
@@ -56,24 +57,22 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
     }
 
     public static void main(String args[]){
-        if(args.length<1) {
-            System.out.println("Database arguments: database-rmi-name [rmi-registry-ip  rmi-registry-port]");
-            return;
-        }
-
         try {
+            Configurator config = Configurator.getInstance();
             Registry registry;
-            if(args.length < 3) {
+            //Initialize RMI
+            if (config.get("rmi_ip") == null) {
                 logger.fine("Using default rmi ip and port");
                 registry = LocateRegistry.getRegistry();
-            } else
-                registry = LocateRegistry.getRegistry(args[1], Integer.parseInt(args[2]));
+            } else {
+                registry = LocateRegistry.getRegistry(config.get("rmi_ip"), Integer.parseInt(config.get("rmi_port")));
+            }
 
-            DatabaseInterface db = new Database(registry, args[0]);
+            DatabaseInterface db = new Database(registry, config.get("database_rmi_name"));
             logger.fine("Binding database");
-            registry.bind(args[0], db);
+            registry.bind(config.get("database_rmi_name"), db);
             db.start();
-            registry.unbind(args[0]);
+            registry.unbind(config.get("database_rmi_name"));
 
             exit(0);
 

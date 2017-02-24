@@ -1,3 +1,4 @@
+import configurator.Configurator;
 import interfaces.DatabaseInterface;
 import interfaces.TimelineInterface;
 import interfaces.TimelineUpdateInterface;
@@ -112,38 +113,43 @@ public class Timeline extends UnicastRemoteObject implements TimelineInterface, 
     }
 
     public static void main(String args[]){
-        if(args.length<2) {
-            System.out.println("Timeline arguments: username database-rmi-name connection-factory-name dispatch-queue" +
-                    "[rmi-registry-ip  rmi-registry-port]");
+        if(args.length<1) {
+            System.out.println("Timeline arguments: username");
             return;
         }
 
+        String username = args[0];
+
         try {
+
+            Configurator config = Configurator.getInstance();
             Registry registry;
-            if(args.length < 5) {
+            //Initialize RMI
+            if (config.get("rmi_ip") == null) {
                 logger.fine("Using default rmi ip and port");
                 registry = LocateRegistry.getRegistry();
-            } else
-                registry = LocateRegistry.getRegistry(args[4], Integer.parseInt(args[5]));
+            } else {
+                registry = LocateRegistry.getRegistry(config.get("rmi_ip"), Integer.parseInt(config.get("rmi_port")));
+            }
 
-            DatabaseInterface db = (DatabaseInterface) registry.lookup(args[1]);
+            DatabaseInterface db = (DatabaseInterface) registry.lookup(config.get("database_rmi_name"));
 
             // JMS init
             Context jndiContext = new InitialContext();
-            ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext.lookup(args[2]);
-            Destination dispatchDest = (Destination) jndiContext.lookup(args[3]);
+            ConnectionFactory connectionFactory = (ConnectionFactory) jndiContext.lookup(config.get("connection_factory_name"));
+            Destination dispatchDest = (Destination) jndiContext.lookup(config.get("dispatch_queue_name"));
             JMSContext context = connectionFactory.createContext();
 
-            Timeline timeline = new Timeline(registry, args[0], db, context, dispatchDest);
+            Timeline timeline = new Timeline(registry, username, db, context, dispatchDest);
 
             timeline.runTimeline();
 
-            logger.fine("Timeline " + args[1] + " unbound");
+            logger.fine("Timeline " + username + " unbound");
 
             exit(0);
 
         } catch (RemoteException | AlreadyBoundException | NotBoundException | InterruptedException | NamingException e){
-            logger.severe("Exiting the timeline " + args[1] + ": " + e.toString());
+            logger.severe("Exiting the timeline " + username + ": " + e.toString());
             exit(-1);
         }
 

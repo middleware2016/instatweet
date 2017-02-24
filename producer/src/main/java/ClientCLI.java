@@ -57,6 +57,26 @@ public class ClientCLI {
         return "Tweet sent!";
     }
 
+    @Command(description="Post a new tweet, without any image")
+    public String tweetimg(
+            @Param(name="user", description="Username of the sender")
+                    String user,
+            @Param(name="text", description="Text of the tweet")
+                    String text,
+            @Param(name="path", description="Path of the image for the tweet")
+                    String path){
+        Image image = null;
+        try {
+            image = ImageIO.read(new File(path));
+            producer.tweet(user, text, image);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "Tweet not sent";
+        }
+
+        return "Tweet sent!";
+    }
+
     @Command(description="Display a certain number of tweets for the specified user")
     public String read(String user, int quantity) {
         String out = "";
@@ -94,7 +114,7 @@ public class ClientCLI {
         }
 
         // Create a buffered image with transparency
-        BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+        BufferedImage bimage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_RGB);
 
         // Draw the image on to the buffered image
         Graphics2D bGr = bimage.createGraphics();

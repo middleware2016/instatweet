@@ -15,53 +15,46 @@ public class Tweet implements Serializable {
 
 
     private final String publisherUsername;
-    private final ImageIcon content;
+    private final String text;
+    private final ImageIcon image;
 
     //When img is a full image this is invalid (-1)
     //When img is a thumbnail this is the id of the full image for the lookup in the database
     private final int fullImgID;
 
 
-    public Tweet(String publisherUsername, String tweet ,Image img) {
+    public Tweet(String publisherUsername, String text, Image img) {
         this.publisherUsername = publisherUsername;
-        this.content = new ImageIcon(img, tweet);
+        this.image = (img==null ? null : new ImageIcon(img));
+        this.text = text;
         this.fullImgID = -1;
     }
 
-    public Tweet(String publisherUsername, String tweet ,Image img, int fullImgID) {
+    public Tweet(String publisherUsername, String text, Image img, int fullImgID) {
         this.publisherUsername = publisherUsername;
-        this.content = new ImageIcon(img, tweet);
+        this.image = (img==null ? null : new ImageIcon(img));
+        this.text = text;
         this.fullImgID = fullImgID;
     }
 
-    public Tweet(Tweet t){
-        publisherUsername = t.publisherUsername;
-        content = new ImageIcon(t.content.getImage(), t.content.getDescription());
-        fullImgID=t.fullImgID;
-
-    }
-
     public String getPublisherUsername() {
-        return publisherUsername;
+        return this.publisherUsername;
     }
 
     public Image getImg() {
-        return content.getImage();
+        return ( this.image==null ? null : this.image.getImage());
     }
 
     public String getText() {
-        return content.getDescription();
+        return this.text;
     }
 
     public int getFullImgID() {
-        return fullImgID;
+        return this.fullImgID;
     }
 
     @Override
     public String toString() {
-        return "Tweet{" +
-                "publisherUsername='" + getPublisherUsername() + '\'' +
-                ", text='" + getText() + '\'' +
-                '}';
+        return String.format("@%s: %s (img: %d)", this.getPublisherUsername(), this.getText(), this.getFullImgID());
     }
 }

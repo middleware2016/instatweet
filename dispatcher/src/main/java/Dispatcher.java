@@ -127,8 +127,6 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInterfa
         }
 
         private void handleTweet(Tweet tw) {
-            logger.info(String.format("[Dispatcher] Received tweet: %s", tw.toString()));
-
             try {
                 Tweet processedTw = processImage(tw);
                 informFollowers(processedTw);
@@ -153,7 +151,7 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInterfa
                 Image thumb = fullImg.getScaledInstance(THUMB_WIDTH, THUMB_HEIGHT, Image.SCALE_DEFAULT);
 
                 //Database insert
-                int fullImgID = db.addImage(new ImageIcon(fullImg, text));
+                int fullImgID = db.addImage(new ImageIcon(fullImg));
 
                 //Create new tw
                 Tweet newTw = new Tweet(tw.getPublisherUsername(),

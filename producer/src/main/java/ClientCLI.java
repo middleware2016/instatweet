@@ -14,7 +14,6 @@ import java.rmi.registry.Registry;
 import java.sql.Timestamp;
 import java.util.List;
 
-import static java.awt.image.BufferedImage.TYPE_INT_RGB;
 import static java.lang.System.exit;
 
 /**
@@ -48,13 +47,13 @@ public class ClientCLI {
         return subscriber + " unsubscribed from " + toUnfollow;
     }
 
-    @Command(description="Post a new tweet")
+    @Command(description="Post a new tweet, without any image")
     public String tweet(
             @Param(name="user", description="Username of the sender")
             String user,
             @Param(name="text", description="Text of the tweet")
             String text) {
-        producer.tweet(user, text, new BufferedImage(200,200, TYPE_INT_RGB));
+        producer.tweet(user, text, null);
         return "Tweet sent!";
     }
 
@@ -82,7 +81,7 @@ public class ClientCLI {
                 if(t.getFullImgID() >= 0)
                     out += String.format("\n\tId of full img: %s", t.getFullImgID());
             }
-            out += String.format("\n");
+            out += "\n";
         }
         return out;
     }

@@ -55,6 +55,9 @@ public class Timeline extends UnicastRemoteObject implements TimelineInterface, 
         this.tweetProducer = context.createProducer();
 
         db.addUser(username, this);
+
+        // By default, every user subscribes to himself. In this way no tweets are "lost".
+        this.subscribeTo(this.username);
     }
 
     public synchronized void runTimeline() throws AlreadyBoundException, RemoteException, NotBoundException, InterruptedException {
@@ -87,7 +90,7 @@ public class Timeline extends UnicastRemoteObject implements TimelineInterface, 
     public ImageIcon getFullImage(int imgID) throws RemoteException {
         ImageIcon temp = db.getImage(imgID);
         if (temp.getImage()!= null) {
-            return new ImageIcon(temp.getImage(), temp.getDescription());
+            return new ImageIcon(temp.getImage());
         }
         return temp;
 
@@ -149,5 +152,6 @@ public class Timeline extends UnicastRemoteObject implements TimelineInterface, 
     @Override
     public void addTweet(Tweet t) throws RemoteException {
         this.timeline.add(t);
+        logger.info(String.format("[@%s timeline] %s", this.username, t.toString()));
     }
 }

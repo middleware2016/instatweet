@@ -77,6 +77,19 @@ public class ClientCLI {
         return "Tweet sent!";
     }
 
+    @Command(description="Post a new tweet, without any image")
+    public String spam(
+            @Param(name="user", description="Username of the sender")
+                    String user,
+            @Param(name="text", description="Text of the tweet")
+                    String text,
+            @Param(name="quantity", description="Number of tweets that will be sent")
+                    int quantity) {
+        for(int i = 0; i<quantity; i++)
+            producer.tweet(user, text, null);
+        return "Spam done!";
+    }
+
     @Command(description="Display a certain number of tweets for the specified user")
     public String read(String user, int quantity) {
         String out = "";

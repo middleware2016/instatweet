@@ -160,7 +160,7 @@ public class LoadManager {
             }
         };
 
-        t.run();
+        t.start();
 
         while (t.isAlive()) {
             //Scaling analysis
@@ -178,17 +178,29 @@ public class LoadManager {
     }
 
     private static void dispatchQueueScaling() throws JMSException, IOException {
-
+        System.out.println("Starting dispatch loop.");
         int i=0;
         Enumeration e = dispatch_destination_browser.getEnumeration();
 
-        while(e.hasMoreElements())
+        System.out.println("Starting counter.");
+        i=0;
+        while(e.hasMoreElements()) {
+            e.nextElement();
             i++;
+        }
 
+        System.out.println("Elements in queue: "+ i);
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e1) {
+            e1.printStackTrace();
+        }
+        /*
         if(((float) i)/dispatcher_list.size() > maxMessPerElem)
             createDispatcher();
         else if(((float) i)/dispatcher_list.size() < minMessPerElem && dispatcher_list.size()>1)
             deleteDispatcher();
+            */
     }
 
     ////////////////////////////////////////////////////////////////////////////////
@@ -211,7 +223,7 @@ public class LoadManager {
 
     private static void createDatabase() throws IOException {
         ProcessBuilder pb = new ProcessBuilder("java", "-jar", database_jar_path);
-        pb.inheritIO().start();
+        pb/*.inheritIO()*/.start();
         db = (DatabaseInterface)waitForRMIObject(database_rmi_name);
 
     }
@@ -225,7 +237,7 @@ public class LoadManager {
         String name = dispatcher_rmi_name + "_" + dispatcher_counter;
 
         ProcessBuilder pb = new ProcessBuilder("appclient", "-client", dispatcher_jar_path, name);
-        pb.inheritIO().start();
+        pb/*.inheritIO()*/.start();
 
         dispatcher_list.add(name);
 
@@ -234,7 +246,7 @@ public class LoadManager {
 
     static void createTimeline(String user) throws IOException {
         ProcessBuilder pb = new ProcessBuilder("appclient", "-client", timeline_jar_path, user);
-        pb.inheritIO().start();
+        pb/*.inheritIO()*/.start();
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

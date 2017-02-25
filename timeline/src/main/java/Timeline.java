@@ -19,6 +19,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -51,7 +52,7 @@ public class Timeline extends UnicastRemoteObject implements TimelineInterface, 
         this.context = context;
         this.dispatchDestination = dispatchDest;
 
-        timeline = new ArrayList<>();
+        timeline = new LinkedList<>();
 
         this.tweetProducer = context.createProducer();
 

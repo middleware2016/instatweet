@@ -156,8 +156,8 @@ public class Timeline extends UnicastRemoteObject implements TimelineInterface, 
     }
 
     @Override
-    public void addTweet(Tweet t) throws RemoteException {
+    public synchronized void addTweet(Tweet t) throws RemoteException {
         this.timeline.add(t);
-        logger.info(String.format("[@%s timeline] %s", this.username, t.toString()));
+        logger.fine(String.format("[@%s timeline] %s", this.username, t.toString()));
     }
 }

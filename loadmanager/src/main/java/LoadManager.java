@@ -246,7 +246,7 @@ public class LoadManager {
 
     static void createTimeline(String user) throws IOException {
         ProcessBuilder pb = new ProcessBuilder("appclient", "-client", timeline_jar_path, user);
-        pb/*.inheritIO()*/.start();
+        pb.inheritIO().start();
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

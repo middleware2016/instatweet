@@ -124,9 +124,11 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInterfa
         public void onMessage(Message message) {
             ObjectMessage msg = (ObjectMessage)message;
             try {
+                counter++;
+                logger.fine(String.format("[DispatcherListener] Tweet %d: begin processing", counter));
                 Tweet tw = (Tweet)msg.getObject();
                 handleTweet(tw);
-                logger.info(String.format("[DispatcherListener] Processed tweet %d", ++counter));
+                logger.fine(String.format("[DispatcherListener] Tweet %d: end processing", counter));
             } catch(JMSException e) {
                 e.printStackTrace();
             }

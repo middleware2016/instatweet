@@ -54,8 +54,8 @@ public class LoadManager {
     private static QueueBrowser dispatch_destination_browser;
 
     //Scaling parameters
-    private static int maxMessPerElem = 1000;
-    private static int minMessPerElem = 100;
+    private static int maxMessPerElem;
+    private static int minMessPerElem;
 
     //Database object
     private static DatabaseInterface db;
@@ -77,6 +77,9 @@ public class LoadManager {
         database_rmi_name = config.get("database_rmi_name");
         dispatcher_rmi_name = config.get("dispatcher_rmi_name");
         accesspoint_rmi_name = config.get("accesspoint_rmi_name");
+
+        maxMessPerElem = Integer.parseInt(config.get("min_messages_per_dispatcher"));
+        minMessPerElem = Integer.parseInt(config.get("max_messages_per_dispatcher"));
 
 
         try {
@@ -179,27 +182,29 @@ public class LoadManager {
 
     private static void dispatchQueueScaling() throws JMSException, IOException {
         System.out.println("Starting dispatch loop.");
-        int i=0;
+        int i = 0;
         Enumeration e = dispatch_destination_browser.getEnumeration();
 
         System.out.println("Starting counter.");
-        i=0;
-        while(e.hasMoreElements()) {
+        i = 0;
+        while (e.hasMoreElements()) {
             e.nextElement();
             i++;
         }
 
-        System.out.println("Elements in queue: "+ i);
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e1) {
-            e1.printStackTrace();
-        }
+        System.out.println("Elements in queue: " + i);
 
-        if(((float) i)/dispatcher_list.size() > maxMessPerElem)
+        if (((float) i) / dispatcher_list.size() > maxMessPerElem) {
             createDispatcher();
-        else if(((float) i)/dispatcher_list.size() < minMessPerElem && dispatcher_list.size()>1)
+        } else if (((float) i) / dispatcher_list.size() < minMessPerElem && dispatcher_list.size() > 1) {
             deleteDispatcher();
+        } else {
+            try {
+                Thread.sleep(3000);
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+        }
 
     }
 

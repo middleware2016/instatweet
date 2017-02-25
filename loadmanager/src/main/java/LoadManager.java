@@ -236,12 +236,13 @@ public class LoadManager {
     private static void createDispatcher() throws IOException {
         String name = dispatcher_rmi_name + "_" + dispatcher_counter;
 
+        logger.info(String.format("Starting %s", name));
         ProcessBuilder pb = new ProcessBuilder("appclient", "-client", dispatcher_jar_path, name);
         pb.inheritIO().start();
 
+        dispatcher_counter++;
+        waitForRMIObject(name); // wait for the new dispatcher to come up online
         dispatcher_list.add(name);
-
-        dispatcher_counter ++;
     }
 
     static void createTimeline(String user) throws IOException {
@@ -253,8 +254,9 @@ public class LoadManager {
 
 
     private static void deleteDispatcher() {
-        if(dispatcher_list.size()>0){
+        if (dispatcher_list.size() > 0) {
             String name = dispatcher_list.get(0);
+            logger.info(String.format("Stopping %s", name));
             try {
                 DispatcherInterface d = (DispatcherInterface) registry.lookup(name);
                 d.stop();

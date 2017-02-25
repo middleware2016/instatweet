@@ -118,6 +118,7 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInterfa
 
         private static final int THUMB_HEIGHT = 100;
         private static final int THUMB_WIDTH = 100;
+        private int counter = 0;
 
         @Override
         public void onMessage(Message message) {
@@ -125,6 +126,7 @@ public class Dispatcher extends UnicastRemoteObject implements DispatcherInterfa
             try {
                 Tweet tw = (Tweet)msg.getObject();
                 handleTweet(tw);
+                logger.info(String.format("[DispatcherListener] Processed tweet %d", ++counter));
             } catch(JMSException e) {
                 e.printStackTrace();
             }

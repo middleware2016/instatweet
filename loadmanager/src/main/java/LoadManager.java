@@ -237,7 +237,7 @@ public class LoadManager {
         String name = dispatcher_rmi_name + "_" + dispatcher_counter;
 
         ProcessBuilder pb = new ProcessBuilder("appclient", "-client", dispatcher_jar_path, name);
-        pb/*.inheritIO()*/.start();
+        pb.inheritIO().start();
 
         dispatcher_list.add(name);
 

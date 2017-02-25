@@ -87,7 +87,7 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
 
     @Override
     public void addUser(String username, Object timeline) throws RemoteException, IllegalArgumentException {
-        synchronized (users){
+        synchronized (subscriptions){
             if(isUser(username))
                 throw new IllegalArgumentException("The username is already in the database");
             users.put(username, timeline);
@@ -97,7 +97,8 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
 
     @Override
     public Object removeUser(String username) throws RemoteException {
-        synchronized (users){
+        synchronized (subscriptions){
+            subscriptions.remove(username);
             return users.remove(username);
         }
     }
@@ -123,11 +124,13 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
             list = subscriptions.get(username);
         }
 
-        if (list != null)
+        if (list != null) {
             synchronized (list) {
                 return new ArrayList<>(list);
             }
-        return null;
+        } else {
+            return new ArrayList<>();
+        }
     }
 
     @Override

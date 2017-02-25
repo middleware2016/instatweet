@@ -54,8 +54,8 @@ public class LoadManager {
     private static QueueBrowser dispatch_destination_browser;
 
     //Scaling parameters
-    private static int maxMessPerElem = 50;
-    private static int minMessPerElem = 5;
+    private static int maxMessPerElem = 1000;
+    private static int minMessPerElem = 100;
 
     //Database object
     private static DatabaseInterface db;
@@ -191,16 +191,16 @@ public class LoadManager {
 
         System.out.println("Elements in queue: "+ i);
         try {
-            Thread.sleep(10000);
+            Thread.sleep(3000);
         } catch (InterruptedException e1) {
             e1.printStackTrace();
         }
-        /*
+
         if(((float) i)/dispatcher_list.size() > maxMessPerElem)
             createDispatcher();
         else if(((float) i)/dispatcher_list.size() < minMessPerElem && dispatcher_list.size()>1)
             deleteDispatcher();
-            */
+
     }
 
     ////////////////////////////////////////////////////////////////////////////////

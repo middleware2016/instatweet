@@ -12,13 +12,11 @@ import java.io.IOException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.sql.Timestamp;
+import java.util.Collections;
 import java.util.List;
 
 import static java.lang.System.exit;
 
-/**
- * Created by pietro on 2017-02-19.
- */
 public class ClientCLI {
 
     private ClientInterface producer;
@@ -50,9 +48,9 @@ public class ClientCLI {
     @Command(description="Post a new tweet, without any image")
     public String tweet(
             @Param(name="user", description="Username of the sender")
-            String user,
+                String user,
             @Param(name="text", description="Text of the tweet")
-            String text) {
+                String text) {
         producer.tweet(user, text, null);
         return "Tweet sent!";
     }
@@ -90,11 +88,16 @@ public class ClientCLI {
         return "Spam done!";
     }
 
-    @Command(description="Display a certain number of tweets for the specified user")
-    public String read(String user, int quantity) {
+    @Command(description="Display a certain number of tweets for the specified user, from the most recent one")
+    public String read(
+            @Param(name="user", description="Username corresponding to the timeline to show")
+                String user,
+            @Param(name="quantity", description="Number of tweets to show")
+                int quantity) {
         String out = "";
         List<Tweet> tweets = producer.getLastTweets(user, quantity);
-        out += String.format("%d new tweets for @%s:\n", tweets.size(), user);
+        Collections.reverse(tweets); // Display tweets from the most recent one
+        out += String.format("Showing %d new tweets for @%s:\n\n", tweets.size(), user);
 
         for(Tweet t: tweets) {
             out += String.format("@%s:\t%s", t.getPublisherUsername(), t.getText());
@@ -139,12 +142,18 @@ public class ClientCLI {
     }
 
     @Command(description="Display 10 tweets for the specified user")
-    public String read(String user) {
+    public String read(
+            @Param(name="user", description="Username corresponding to the timeline to show")
+            String user) {
         return read(user, 10);
     }
 
     @Command(description="Download the full image from the server")
-    public String getfull(String user, int imgID) {
+    public String getfull(
+            @Param(name="user", description="Username corresponding to the timeline to show")
+                String user,
+            @Param(name="imgID", description="ID of the image to download")
+                int imgID) {
         String out = "";
         ImageIcon imgIc = producer.getFullImage(user,imgID);
         String localPath = String.format("tweets_data/Full_%s.jpg", new Timestamp(System.currentTimeMillis()));
@@ -174,7 +183,7 @@ public class ClientCLI {
 
     public static void main(String args[]){
         if(args.length<1) {
-            System.out.println("Producer arguments: api_rmi_name");
+            System.out.println("Producer arguments: accesspoint_rmi_name");
             return;
         }
 

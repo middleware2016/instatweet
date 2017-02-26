@@ -23,7 +23,7 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
     private Registry registry;
     private String rmi_name;
     private Map<String, Object> users;
-    private Map<String, List<String>> subscriptions;
+    private Map<String, Set<String>> subscriptions;
     private Map<Integer, ImageIcon> images;
     private int nextImageID;
     private boolean stop = false;
@@ -91,7 +91,7 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
             if(isUser(username))
                 throw new IllegalArgumentException("The username is already in the database");
             users.put(username, timeline);
-            subscriptions.put(username, new ArrayList<>());
+            subscriptions.put(username, new TreeSet<>());
         }
     }
 
@@ -117,16 +117,16 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
     @Override
     public List<String> getSubscribers(String username) throws RemoteException {
 
-        List<String> list;
+        Set<String> followersSet;
 
         synchronized (subscriptions) {
             //Map.get returns null if the key is not present
-            list = subscriptions.get(username);
+            followersSet = subscriptions.get(username);
         }
 
-        if (list != null) {
-            synchronized (list) {
-                return new ArrayList<>(list);
+        if (followersSet != null) {
+            synchronized (followersSet) {
+                return new ArrayList<>(followersSet);
             }
         } else {
             return new ArrayList<>();
@@ -136,15 +136,15 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
     @Override
     public void addSubscriber(String username, String subscriberUsername) throws RemoteException {
 
-        List<String> list;
+        Set<String> followersSet;
 
         synchronized (subscriptions) {
             //Map.get returns null if the key is not present
-            list = subscriptions.get(username);
+            followersSet = subscriptions.get(username);
         }
 
-        synchronized (list) {
-            list.add(subscriberUsername);
+        synchronized (followersSet) {
+            followersSet.add(subscriberUsername);
         }
 
     }
@@ -152,15 +152,15 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
     @Override
     public void removeSubscriber(String username, String subscriberUsername) throws RemoteException {
 
-        List<String> list;
+        Set<String> followersSet;
 
         synchronized (subscriptions) {
             //Map.get returns null if the key is not present
-            list = subscriptions.get(username);
+            followersSet = subscriptions.get(username);
         }
 
-        synchronized (list){
-            list.remove(subscriberUsername);
+        synchronized (followersSet){
+            followersSet.remove(subscriberUsername);
         }
     }
 

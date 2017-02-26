@@ -181,18 +181,17 @@ public class LoadManager {
     }
 
     private static void dispatchQueueScaling() throws JMSException, IOException {
-        System.out.println("Starting dispatch loop.");
         int i = 0;
         Enumeration e = dispatch_destination_browser.getEnumeration();
 
-        System.out.println("Starting counter.");
         i = 0;
         while (e.hasMoreElements()) {
             e.nextElement();
             i++;
         }
 
-        System.out.println("Elements in queue: " + i);
+        if(i>0)
+            logger.info("Elements in dispatch queue: " + i);
 
         if (((float) i) / dispatcher_list.size() > maxMessPerElem) {
             createDispatcher();

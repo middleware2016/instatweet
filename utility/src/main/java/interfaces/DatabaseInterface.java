@@ -12,10 +12,10 @@ import java.util.List;
  */
 public interface DatabaseInterface extends Remote{
 
-    public void addUser(String username, Object timeline) throws RemoteException, IllegalArgumentException;
+    public void addUser(String username, TimelineInterface timeline) throws RemoteException, IllegalArgumentException;
     public boolean isUser(String username) throws RemoteException;
-    public Object removeUser(String username) throws RemoteException;
-    public Object getTimeline(String username) throws RemoteException;
+    public TimelineInterface removeUser(String username) throws RemoteException;
+    public TimelineInterface getTimeline(String username) throws RemoteException;
 
     public List<String> getSubscribers(String username) throws RemoteException;
     public void addSubscriber(String username, String subscriberUsername) throws RemoteException;
@@ -25,7 +25,7 @@ public interface DatabaseInterface extends Remote{
     public ImageIcon getImage(int imageID) throws RemoteException;
     public void removeImage(int imageID) throws RemoteException;
 
-    public List<Object> getTimelinesAsList() throws RemoteException;
+    public List<TimelineInterface> getTimelinesAsList() throws RemoteException;
     public void stop() throws RemoteException;
     public void start() throws RemoteException;
 }

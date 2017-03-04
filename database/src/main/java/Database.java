@@ -1,5 +1,6 @@
 import configurator.Configurator;
 import interfaces.DatabaseInterface;
+import interfaces.TimelineInterface;
 
 import javax.swing.*;
 import java.rmi.AlreadyBoundException;
@@ -22,7 +23,7 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
 
     private Registry registry;
     private String rmi_name;
-    private Map<String, Object> users;
+    private Map<String, TimelineInterface> users;
     private Map<String, Set<String>> subscriptions;
     private Map<Integer, ImageIcon> images;
     private int nextImageID;
@@ -39,7 +40,6 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
         images = new HashMap<>();
         nextImageID = 0;
     }
-
 
     public synchronized void stop() throws RemoteException{
         stop = true;
@@ -86,7 +86,7 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
     }
 
     @Override
-    public void addUser(String username, Object timeline) throws RemoteException, IllegalArgumentException {
+    public void addUser(String username, TimelineInterface timeline) throws RemoteException, IllegalArgumentException {
         synchronized (subscriptions){
             if(isUser(username))
                 throw new IllegalArgumentException("The username is already in the database");
@@ -96,7 +96,7 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
     }
 
     @Override
-    public Object removeUser(String username) throws RemoteException {
+    public TimelineInterface removeUser(String username) throws RemoteException {
         synchronized (subscriptions){
             subscriptions.remove(username);
             return users.remove(username);
@@ -110,7 +110,7 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
 
 
     @Override
-    public Object getTimeline(String username) throws RemoteException {
+    public TimelineInterface getTimeline(String username) throws RemoteException {
         return users.get(username);
     }
 
@@ -120,7 +120,7 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
         Set<String> followersSet;
 
         synchronized (subscriptions) {
-            //Map.get returns null if the key is not present
+            // Map.get returns null if the key is not present
             followersSet = subscriptions.get(username);
         }
 
@@ -139,7 +139,7 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
         Set<String> followersSet;
 
         synchronized (subscriptions) {
-            //Map.get returns null if the key is not present
+            // Map.get returns null if the key is not present
             followersSet = subscriptions.get(username);
         }
 
@@ -155,7 +155,7 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
         Set<String> followersSet;
 
         synchronized (subscriptions) {
-            //Map.get returns null if the key is not present
+            // Map.get returns null if the key is not present
             followersSet = subscriptions.get(username);
         }
 
@@ -188,11 +188,11 @@ public class Database extends UnicastRemoteObject implements DatabaseInterface {
     }
 
     @Override
-    public List<Object> getTimelinesAsList() throws RemoteException {
-        Collection<Object> coll = users.values();
-        List<Object> list = new ArrayList<>();
+    public List<TimelineInterface> getTimelinesAsList() throws RemoteException {
+        Collection<TimelineInterface> coll = users.values();
+        List<TimelineInterface> list = new ArrayList<>();
 
-        for(Object o : coll)
+        for(TimelineInterface o : coll)
             list.add(o);
 
         return list;

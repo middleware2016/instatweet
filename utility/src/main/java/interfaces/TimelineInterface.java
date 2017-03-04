@@ -18,6 +18,7 @@ public interface TimelineInterface extends Remote {
 
     public int getIndexLast() throws RemoteException;
     public List<Tweet> getLastTweets(int quantity) throws RemoteException;
+    public int getNumTweets() throws RemoteException;
     public ImageIcon getFullImage(int imgID) throws RemoteException;
 
     public void postTweet(Tweet t) throws RemoteException;

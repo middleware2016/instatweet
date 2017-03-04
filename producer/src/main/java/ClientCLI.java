@@ -148,6 +148,13 @@ public class ClientCLI {
         return read(user, 10);
     }
 
+    @Command(description = "Count the number of tweets in the timeline of a user")
+    public int count(
+            @Param(name="user", description="Username corresponding to the timeline to count")
+                    String user) {
+        return producer.getNumTweets(user);
+    }
+
     @Command(description="Download the full image from the server")
     public String getfull(
             @Param(name="user", description="Username corresponding to the timeline to show")

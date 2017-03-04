@@ -13,4 +13,5 @@ public interface ClientInterface {
     public void unsubscribe(String follower, String toUnfollow);
     public ImageIcon getFullImage(String user, int imgID);
     public List<Tweet> getLastTweets(String user, int quantity);
+    public int getNumTweets(String user);
 }

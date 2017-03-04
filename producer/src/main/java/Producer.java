@@ -40,6 +40,16 @@ public class Producer implements ClientInterface {
     }
 
     @Override
+    public int getNumTweets(String user) {
+        try {
+            return getTimelineForUser(user).getNumTweets();
+        } catch (RemoteException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    @Override
     public void tweet(String user, String text, Image image) {
         Tweet t = new Tweet(user, text, image);
         try {

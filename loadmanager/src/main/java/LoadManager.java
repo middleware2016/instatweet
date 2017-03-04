@@ -287,10 +287,10 @@ public class LoadManager {
         }
 
         try {
-            List<Object> list = db.getTimelinesAsList();
+            List<TimelineInterface> list = db.getTimelinesAsList();
 
-            for(Object o : list)
-                ((TimelineInterface) o).deleteTimeline();
+            for(TimelineInterface tl : list)
+                tl.deleteTimeline();
 
             db.stop();
 

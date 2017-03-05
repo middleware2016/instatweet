@@ -1,6 +1,7 @@
 import asg.cliche.Command;
 import asg.cliche.Param;
 import asg.cliche.ShellFactory;
+import configurator.Configurator;
 import payloads.Tweet;
 
 import javax.imageio.ImageIO;
@@ -195,9 +196,16 @@ public class ClientCLI {
         }
 
         try {
+            Configurator config = Configurator.getInstance();
+            Registry registry;
+            // Initialize RMI
+            if (config.get("rmi_ip") == null) {
+                registry = LocateRegistry.getRegistry();
+            } else {
+                registry = LocateRegistry.getRegistry(config.get("rmi_ip"), Integer.parseInt(config.get("rmi_port")));
+            }
             // Construction of the object and binding
-            Registry reg = LocateRegistry.getRegistry();
-            ClientInterface producer = new Producer(reg, args[0]);
+            ClientInterface producer = new Producer(registry, args[0]);
             ClientCLI cli = new ClientCLI(producer);
             cli.runShell();
 
